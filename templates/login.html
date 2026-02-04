@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#f5f7fa,#c3cfe2);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.login-container {
+    width:100%;
+    max-width:420px;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.1);
+    padding:60px 40px;
+    animation:slideUp .5s ease-out;
+    position: relative;
+}
+
+@keyframes slideUp {
+    from {opacity:0; transform:translateY(30px);}
+    to {opacity:1; transform:translateY(0);}
+}
+
+.header {text-align:center; margin-bottom:40px;}
+
+.logo {
+    width:80px; height:80px;
+    margin:0 auto 20px;
+    background:#1a3a5c;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:32px;
+}
+
+.system-title {font-size:24px; font-weight:600; color:#1a3a5c;}
+.subtitle {font-size:13px; color:#7a8a9a;}
+
+.form-group {margin-bottom:24px;}
+label {font-size:14px; font-weight:500; color:#1a3a5c;}
+
+.input-wrapper {position:relative;}
+input {
+    width:100%;
+    padding:12px 16px;
+    border:2px solid #e0e6ed;
+    border-radius:6px;
+    background:#f9fbfd;
+}
+
+input:focus {
+    outline:none;
+    border-color:#10b981;
+    background:white;
+}
+
+.password-toggle {
+    position:absolute;
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+    background:none;
+    border:none;
+    cursor:pointer;
+}
+
+.error-message {
+    font-size:12px;
+    color:#dc2626;
+    display:none;
+}
+
+.error-message.show {display:block;}
+
+input.invalid {
+    border-color:#dc2626;
+    background:#fef2f2;
+}
+
+.login-btn {
+    width:100%;
+    padding:12px;
+    font-weight:600;
+    color:white;
+    background:#1a3a5c;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.spinner {
+    width:16px;
+    height:16px;
+    border:2px solid rgba(255,255,255,.3);
+    border-top:2px solid white;
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+    display:none;
+}
+
+.spinner.show {display:inline-block;}
+
+@keyframes spin {
+    0%{transform:rotate(0);}
+    100%{transform:rotate(360deg);}
+}
+
+.flash-alert {
+    padding:12px;
+    border-radius:6px;
+    margin-bottom:20px;
+    color:#7f1d1d;
+    background:#fee2e2;
+    border:1px solid #fecaca;
+    text-align:center;
+}
+
+.footer {
+    text-align:center;
+    margin-top:30px;
+    font-size:12px;
+    color:#7a8a9a;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-container">
+
+<div class="header">
+    <div class="logo">🏛️</div>
+    <h1 class="system-title">Academic Data Management System</h1>
+    <p class="subtitle">Secure Role-Based Access</p>
+</div>
+
+{% if error %}
+    <div class="flash-alert">{{ error }}</div>
+{% endif %}
+
+<form id="loginForm" method="POST" action="{{ url_for('auth.login') }}">
+
+<div class="form-group">
+    <label>Username</label>
+    <div class="input-wrapper">
+        <input type="text" id="username" name="username" required>
+    </div>
+    <div class="error-message" id="usernameError"></div>
+</div>
+
+<div class="form-group">
+    <label>Password</label>
+    <div class="input-wrapper">
+        <input type="password" id="password" name="password" required>
+        <button type="button" class="password-toggle" id="toggle">👁️</button>
+    </div>
+    <div class="error-message" id="passwordError"></div>
+</div>
+
+<button type="submit" class="login-btn">
+    <span class="spinner" id="spinner"></span>
+    <span>Login</span>
+</button>
+
+</form>
+
+<div class="footer">
+    Authorized users only
+</div>
+
+</div>
+
+<script>
+console.log("Login page loaded — waiting for authentication attempt");
+
+const username = document.getElementById("username");
+const password = document.getElementById("password");
+const toggle = document.getElementById("toggle");
+const form = document.getElementById("loginForm");
+const spinner = document.getElementById("spinner");
+const userError = document.getElementById("usernameError");
+const passError = document.getElementById("passwordError");
+
+toggle.onclick = () => {
+    password.type = password.type === "password" ? "text" : "password";
+    toggle.textContent = password.type === "password" ? "👁️" : "🙈";
+};
+
+form.addEventListener("submit", function(e) {
+    console.log("Login form submit triggered — validating before auth call");
+
+    let valid = true;
+
+    userError.textContent = "";
+    passError.textContent = "";
+    username.classList.remove("invalid");
+    password.classList.remove("invalid");
+
+    if (!username.value.trim()) {
+        userError.textContent = "Username required";
+        userError.classList.add("show");
+        username.classList.add("invalid");
+        valid = false;
+    }
+
+    if (!password.value.trim()) {
+        passError.textContent = "Password required";
+        passError.classList.add("show");
+        password.classList.add("invalid");
+        valid = false;
+    }
+
+    if (!valid) {
+        console.log("Validation failed — auth call blocked");
+        e.preventDefault();
+    } else {
+        console.log("Validation passed — auth request being sent");
+        spinner.classList.add("show");
+    }
+});
+</script>
+
+</body>
+</html>

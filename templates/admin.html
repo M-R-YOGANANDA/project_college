@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CPC Polytechnic Mysuru</title>
+    
+    <style>
+      /* ==================== BACKUP SECTION STYLES ==================== */
+
+/* 1. The Main Card Container (Existing in your code) */
+.backup-section {
+    background: white;
+    padding: 24px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+/* 2. The Heading (H3) */
+.backup-section h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a3a5c; /* Dark Blue from your theme */
+    margin-bottom: 15px;
+    margin-top: 0;
+}
+
+/* 3. The Controls Wrapper */
+.backup-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* 4. The File Input Label (Styled to look like a Button) */
+.file-input-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background-color: #f1f5f9; /* Light gray */
+    color: #1a3a5c;            /* Dark Blue text */
+    border: 1px solid #cbd5e1; /* Subtle border */
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    width: 100%; /* Optional: Makes it full width on mobile */
+}
+
+.file-input-label:hover {
+    background-color: #e2e8f0;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+
+/* 5. The Warning Box */
+.backup-warning {
+    font-size: 13px;
+    color: #92400e;            /* Dark Amber text */
+    background-color: #fffbeb; /* Light Amber/Yellow background */
+    border-left: 4px solid #f59e0b; /* Amber accent border */
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+    /* ==================== GLOBAL STYLES ==================== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; display: flex; min-height: 100vh; color: #1a3a5c; }
+
+    /* ==================== SIDEBAR ==================== */
+    .sidebar { width: 250px; background: #1a3a5c; color: white; padding: 20px 0; position: fixed; left: 0; top: 60px; height: calc(100vh - 60px); overflow-y: auto; box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; }
+    .sidebar-content { flex: 1; }
+    .sidebar h3 { padding: 20px 20px 10px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: #7a8a9a; letter-spacing: 1px; }
+    .nav-item { padding: 12px 20px; cursor: pointer; transition: all 0.3s ease; border-left: 4px solid transparent; display: flex; align-items: center; gap: 12px; font-size: 14px; }
+    .nav-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .nav-item.active { background: rgba(16, 185, 129, 0.2); border-left-color: #10b981; color: #10b981; }
+    .nav-icon { font-size: 18px; }
+    .sidebar-logout { padding: 15px 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; }
+    
+    /* Logout Button Styling to match old button */
+    .logout-btn { background: #dc2626; color: white; border: none; padding: 10px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; width: 100%; justify-content: center; text-decoration: none; }
+    .logout-btn:hover { background: #b91c1c; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); }
+
+    /* ==================== TOP HEADER ==================== */
+    .header { background: #1a3a5c; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; height: 60px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); z-index: 1000; }
+    .header-left h1 { font-size: 18px; font-weight: 600; }
+    .header-right { display: flex; align-items: center; gap: 20px; }
+    .admin-label { font-size: 13px; color: #b3bcc9; }
+
+    /* ==================== MAIN CONTENT ==================== */
+    .main-content { margin-left: 250px; margin-top: 60px; padding: 30px; flex: 1; width: calc(100% - 250px); }
+    .page-title { font-size: 28px; font-weight: 600; margin-bottom: 10px; color: #1a3a5c; }
+    .page-subtitle { font-size: 14px; color: #7a8a9a; margin-bottom: 30px; }
+    .content-section { display: none; }
+    .content-section.active { display: block; }
+
+    /* ==================== DASHBOARD CARDS ==================== */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .dashboard-card { background: white; padding: 24px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; border-top: 4px solid #10b981; }
+    .dashboard-card:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
+    .card-label { font-size: 12px; color: #7a8a9a; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .card-value { font-size: 32px; font-weight: 700; color: #1a3a5c; }
+    .card-subtext { font-size: 12px; color: #b3bcc9; margin-top: 8px; }
+
+    /* ==================== CONTROLS & BUTTONS ==================== */
+    .control-panel, .backup-section { background: white; padding: 24px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
+    .control-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #e0e6ed; }
+    .control-item:last-child { border-bottom: none; }
+    .btn { padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .btn-primary { background: #10b981; color: white; }
+    .btn-primary:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+    
+    /* Toggle Switch */
+    .toggle-switch { position: relative; width: 50px; height: 28px; background: #e0e6ed; border: none; border-radius: 14px; cursor: pointer; transition: all 0.3s ease; padding: 2px; }
+    .toggle-switch.enabled { background: #10b981; }
+    .toggle-switch .slider { position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; background: white; border-radius: 50%; transition: all 0.3s ease; }
+    .toggle-switch.enabled .slider { left: 24px; }
+    
+    /* Backup Styles */
+    .backup-status { font-size: 12px; color: #047857; margin-top: 12px; padding: 10px 14px; background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 4px; display: none; }
+    .backup-status.show { display: block; }
+    .backup-select { padding: 10px 14px; border: 2px solid #e0e6ed; border-radius: 6px; font-size: 13px; color: #1a3a5c; background: white; cursor: pointer; width: 100%; }
+
+    /* Hide backup UI by default — only show when the parent content section is active */
+    .content-section .backup-section {
+        display: none;
+    }
+    .content-section.active .backup-section {
+        display: block;
+    }
+    /* Hide fine-grained controls until the backup section is active */
+    .content-section .backup-controls {
+        display: none;
+    }
+    .content-section.active .backup-controls {
+        display: flex;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .sidebar { width: 0; overflow: hidden; }
+        .main-content { margin-left: 0; width: 100%; }
+        .dashboard-grid { grid-template-columns: 1fr; }
+        .admin-label { display: none; }
+    }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>CPC Polytechnic Mysuru – Admin Panel</h1>
+        </div>
+        <div class="header-right">
+            <span class="admin-label">
+                Logged in as {{ current_user.name }}
+            </span>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-content">
+            <h3>Navigation</h3>
+            <div class="nav-item active" onclick="switchSection('dashboard', this)">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('system-controls', this)">
+                <span class="nav-icon">⚙️</span>
+                <span>System Controls</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('report-downloads', this)">
+                <span class="nav-icon">📥</span>
+                <span>Report Downloads</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('backup-recovery', this)">
+                <span class="nav-icon">💾</span>
+                <span>Data Backup & Recovery</span>
+            </div>
+        </div>
+        <div class="sidebar-logout">
+            <a class="btn btn-primary" href="{{ url_for('admin.create_user') }}" style="display:block; margin-bottom:12px; text-align:center;">
+                <span>➕</span>
+                <span style="margin-left:8px;">Create User</span>
+            </a>
+
+            <a class="logout-btn" href="{{ url_for('auth.logout') }}">
+                <span>🚪</span>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="dashboard" class="content-section active">
+            <h2 class="page-title">Dashboard</h2>
+            <p class="page-subtitle">System Overview & Quick Stats</p>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-label">Total HODs</div>
+                    <div class="card-value">{{ hod_count or 0 }}</div>
+                    <div class="card-subtext">Head of departments</div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-label">Students</div>
+                    <div class="card-value">{{ students_count or 0 }}</div>
+                    <div class="card-subtext">Total enrolled students</div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-label">Teaching Staff</div>
+                    <div class="card-value">{{ staff_count or 0 }}</div>
+                    <div class="card-subtext">Faculty members</div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-label">Branches</div>
+                    <div class="card-value">{{ branch_count or 0 }}</div>
+                    <div class="card-subtext">Academic departments</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="system-controls" class="content-section">
+            <h2 class="page-title">System Controls</h2>
+            <p class="page-subtitle">Enable or disable major system modules</p>
+            
+               <div class="control-item">
+                <div class="control-label">
+                    <div class="control-name">Maintenance Mode</div>
+                    <div class="control-description">
+                        Enable or disable system-wide maintenance. Only admin can log in during maintenance.
+                    </div>
+                </div>
+                  <div class="toggle-wrapper">
+                      <button id="maintenanceToggle" class="toggle-switch" onclick="toggleMaintenance(this)">
+                          <div class="slider"></div>
+                      </button>
+                  </div>
+              </div>
+
+            </div>
+
+            <div id="maintenanceWarning" class="maintenance-warning" style="display: none;">
+                <strong>⚠️ Warning:</strong> System is under maintenance. User actions are restricted.
+            </div>
+
+        <div id="report-downloads" class="content-section">
+            <h2 class="page-title">Report Downloads</h2>
+            <p class="page-subtitle">Generate and download academic reports</p>
+            
+            <div class="control-panel">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;">
+                    
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1a3a5c; margin-bottom: 8px;">Report Type</label>
+                        <select class="backup-select" id="reportTypeSelect">
+                            <option value="">Select Report Type</option>
+                            <option value="attendance">Attendance Report</option>
+                            <option value="cie">CIE Marks Report</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1a3a5c; margin-bottom: 8px;">Academic Year</label>
+                        <select class="backup-select" id="yearSelect">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1a3a5c; margin-bottom: 8px;">Branch</label>
+                        <select class="backup-select" id="branchSelect">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1a3a5c; margin-bottom: 8px;">Semester</label>
+                        <select class="backup-select" id="semesterSelect">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid #e0e6ed; padding-top: 20px;">
+                    <button class="btn btn-primary" onclick="handleReportDownload()">
+                        <span>📥</span>
+                        <span>Download Report</span>
+                    </button>
+                </div>
+                <div>
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1a3a5c; margin-bottom: 8px;">Download Format</label>
+                        <select class="backup-select" id="formatSelect">
+                            <option value="excel">Excel Sheet (.xlsx)</option>
+                            <option value="pdf">PDF Document (.pdf)</option>
+                        </select>
+                    </div>
+            </div>
+
+        </div>
+
+        <div id="backup-recovery" class="content-section">
+            <h2 class="page-title">Data Backup & Recovery</h2>
+            <p class="page-subtitle">System safety and reliability control</p>
+            
+            <!-- Manual Backup -->
+         <div class="backup-section">
+            <h3>Manual Backup</h3>
+            
+            <p style="margin-bottom: 15px; color: #666; font-size: 0.9em;">
+                Click below to save a full database backup to the server folder.
+            </p>
+
+            <div class="backup-controls" style="align-items: center;">
+                <button id="backupBtn" class="btn btn-primary" onclick="performManualBackup()">
+                    <span>💾</span>
+                    <span>Backup Now</span>
+                </button>
+
+                <div id="backupBuffer" style="display: none; margin-left: 15px; align-items: center; gap: 8px; color: #d97706; font-weight: 600; font-size: 13px;">
+                    <div style="width: 16px; height: 16px; border: 2px solid #d97706; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <span>Processing...</span>
+                </div>
+            </div>
+
+            <p id="manualBackupStatus" class="mt-3 text-sm font-semibold" style="display:none; margin-top:10px;"></p>
+        </div>
+    
+
+            <!-- Scheduled Backup -->
+        
+
+            <!-- Restore Backup -->
+           <div class="backup-section">
+    <h3>Restore Data</h3>
+    
+    <div class="backup-controls" style="flex-direction: column; align-items: flex-start;">
+        
+        <div class="file-input-wrapper">
+            <input type="file" id="backupFile" accept=".xlsx" style="display:none" onchange="updateFileName()">
+            <label for="backupFile" class="file-input-label" id="fileLabel">
+                <span>📁</span> Select Backup File
+            </label>
+        </div>
+
+        <button id="uploadBtn" class="btn btn-primary" onclick="uploadBackupFile()" style="margin-top: 10px; display: none; background-color: #f59e0b; border: none;">
+            <span>⬆️</span> Upload & Restore
+        </button>
+
+    </div>
+
+    <p id="uploadStatus" class="mt-3 text-sm font-semibold"></p>
+
+    <div id="restoreWarning" class="backup-warning">
+        ⚠️ Uploading a file will save it to the server's backup folder.
+    </div>
+</div>
+</div>
+        </div>
+
+
+<script>
+    // 1. Show the file name when selected
+    function updateFileName() {
+        const fileInput = document.getElementById('backupFile');
+        const label = document.getElementById('fileLabel');
+        const uploadBtn = document.getElementById('uploadBtn');
+
+        if (fileInput.files.length > 0) {
+            label.innerText = "📄 " + fileInput.files[0].name; // Change label text
+            label.style.borderColor = "#10b981"; // Green border
+            uploadBtn.style.display = "inline-flex"; // Show upload button
+        }
+    }
+
+    // 2. Send the file to Python
+    async function uploadBackupFile() {
+        const fileInput = document.getElementById('backupFile');
+        const statusText = document.getElementById('uploadStatus');
+
+        if (fileInput.files.length === 0) {
+            alert("Please select a file first.");
+            return;
+        }
+
+        // Prepare the file data
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        statusText.innerText = "Uploading...";
+        statusText.style.color = "blue";
+
+        try {
+            const resp = await fetch("{{ url_for('admin.upload_backup') }}", {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await resp.json();
+
+            if (data.status === "success") {
+                statusText.innerText = "✅ " + data.message;
+                statusText.style.color = "green";
+            } else {
+                statusText.innerText = "❌ Error: " + data.message;
+                statusText.style.color = "red";
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            statusText.innerText = "❌ Connection failed.";
+            statusText.style.color = "red";
+        }
+    }
+</script>
+<script>
+    // Define the spin animation if not already in CSS
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    `;
+    document.head.appendChild(style);
+
+    async function performManualBackup() {
+        const btn = document.getElementById('backupBtn');
+        const buffer = document.getElementById('backupBuffer');
+        const statusText = document.getElementById('manualBackupStatus');
+
+        // 1. UI State: Buffering
+        btn.disabled = true;           // Disable button to prevent double clicks
+        btn.style.opacity = "0.6";
+        buffer.style.display = "flex"; // Show spinner
+        statusText.style.display = "none"; // Hide old messages
+
+        try {
+            // 2. Call the Python API
+            const resp = await fetch("{{ url_for('admin.backup_data') }}", {
+                method: "POST"
+            });
+            const data = await resp.json();
+
+            // 3. UI State: Finished
+            buffer.style.display = "none"; // Hide spinner
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            statusText.style.display = "block";
+
+            if (data.status === "success") {
+                statusText.innerText = "✅ " + data.message;
+                statusText.style.color = "#059669"; // Green
+            } else {
+                statusText.innerText = "❌ Error: " + data.message;
+                statusText.style.color = "#dc2626"; // Red
+            }
+
+        } catch (error) {
+            console.error(error);
+            buffer.style.display = "none";
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            statusText.style.display = "block";
+            statusText.innerText = "❌ Connection Failed";
+            statusText.style.color = "#dc2626";
+        }
+    }
+</script>
+
+    <script>
+        // Navigation Logic
+        function switchSection(id, el) {
+            document.querySelectorAll(".content-section").forEach(s => s.classList.remove("active"));
+            const target = document.getElementById(id);
+            if (target) target.classList.add("active");
+
+            document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+            if (el) el.classList.add("active");
+        }
+
+  
+    </script>
+    <script>
+    // =========================================================
+    // 1. DATABASE SYNC (The Fix)
+    // =========================================================
+    async function initMaintenanceToggle() {
+        try {
+            // Step A: Ask the server "What is the real value in MySQL?"
+            const resp = await fetch("{{ url_for('admin.get_maintenance') }}");
+            const data = await resp.json();
+            
+            const button = document.getElementById("maintenanceToggle");
+            
+            // Step B: STRICT CHECK
+            // If DB says "1", force visual ON. 
+            // If DB says "0", force visual OFF.
+            if (data.enabled === "1") {
+                button.classList.add("enabled"); 
+                console.log("Database says: ON (1)");
+            } else {
+                button.classList.remove("enabled");
+                console.log("Database says: OFF (0)");
+            }
+        } catch (err) {
+            console.error("Failed to sync with database:", err);
+        }
+    }
+
+    // Run this INSTANTLY when page loads
+    document.addEventListener("DOMContentLoaded", initMaintenanceToggle);
+
+
+    // =========================================================
+    // 2. TOGGLE ACTION (Clicking the button)
+    // =========================================================
+    async function toggleMaintenance(button) {
+        // Calculate new state based on current visual state
+        const isCurrentlyOn = button.classList.contains("enabled");
+        const newState = !isCurrentlyOn; // If ON, make OFF. If OFF, make ON.
+
+        // 1. Optimistic UI Update (Click feels instant)
+        button.classList.toggle("enabled", newState);
+
+        try {
+            // 2. Send new value to Database
+            const resp = await fetch("{{ url_for('admin.set_maintenance') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ enabled: newState })
+            });
+            
+            const data = await resp.json();
+            
+            // 3. Verify Success
+            if (data.status !== "success") {
+                throw new Error("Server failed to save");
+            }
+            console.log("Database updated to:", newState ? "1" : "0");
+
+        } catch (err) {
+            // 4. Revert UI if Database failed
+            button.classList.toggle("enabled", isCurrentlyOn);
+            alert("Error: Could not update database.");
+        }
+    }
+
+    // =========================================================
+    // 3. NAVIGATION & EXTRAS
+    // =========================================================
+    function switchSection(id, el) {
+        document.querySelectorAll(".content-section").forEach(s => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+        el.classList.add("active");
+    }
+
+  
+</script>
+
+<script>
+        // 1. POPULATE DROPDOWNS ON LOAD
+        async function loadReportOptions() {
+            try {
+                const resp = await fetch("{{ url_for('admin.get_report_options') }}");
+                const data = await resp.json();
+
+                if (data.status === "success") {
+                    // Populate Years
+                    const yearSelect = document.getElementById("yearSelect");
+                    yearSelect.innerHTML = '<option value="">Select Year</option>';
+                    data.years.forEach(year => {
+                        yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
+                    });
+
+                    // Populate Branches
+                    const branchSelect = document.getElementById("branchSelect");
+                    branchSelect.innerHTML = '<option value="">Select Branch</option>';
+                    data.branches.forEach(branch => {
+                        // Value is ID, Text is Name
+                        branchSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+                    });
+
+                    // Populate Semesters
+                    const semSelect = document.getElementById("semesterSelect");
+                    semSelect.innerHTML = '<option value="">Select Semester</option>';
+                    data.semesters.forEach(sem => {
+                        semSelect.innerHTML += `<option value="${sem}">${sem}</option>`;
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to load report options", err);
+            }
+        }
+
+        // Run immediately
+        document.addEventListener("DOMContentLoaded", loadReportOptions);
+
+        // ... (Keep your existing Maintenance, Navigation, and Backup scripts below) ...
+        // ... (Make sure to include initMaintenanceToggle() inside DOMContentLoaded or call it here) ...
+        document.addEventListener("DOMContentLoaded", initMaintenanceToggle);
+
+        // 2. DOWNLOAD HANDLER (Placeholder logic for now)
+        function handleReportDownload() {
+            const type = document.getElementById("reportTypeSelect").value;
+            const year = document.getElementById("yearSelect").value;
+            const branch = document.getElementById("branchSelect").value;
+            const sem = document.getElementById("semesterSelect").value;
+
+            if(!type || !year || !branch || !sem) {
+                alert("Please select all fields.");
+                return;
+            }
+            
+            // For now, just alert. You will replace this with the fetch call later.
+            alert(`Generating ${type} report for:\nYear: ${year}\nBranch ID: ${branch}\nSem: ${sem}`);
+        }
+
+        // ... (Paste your existing ToggleMaintenance and SwitchSection functions here) ...
+    </script>
+
+    <script>
+    // =========================================================
+    // 1. NAVIGATION LOGIC
+    // =========================================================
+    function switchSection(id, el) {
+        document.querySelectorAll(".content-section").forEach(s => s.classList.remove("active"));
+        const target = document.getElementById(id);
+        if (target) target.classList.add("active");
+
+        document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+        if (el) el.classList.add("active");
+    }
+
+    // =========================================================
+    // 2. MAINTENANCE MODE LOGIC
+    // =========================================================
+    async function initMaintenanceToggle() {
+        try {
+            const resp = await fetch("{{ url_for('admin.get_maintenance') }}");
+            const data = await resp.json();
+            const button = document.getElementById("maintenanceToggle");
+            
+            if (data.enabled === "1") {
+                button.classList.add("enabled");
+            } else {
+                button.classList.remove("enabled");
+            }
+        } catch (err) {
+            console.error("Failed to sync with database:", err);
+        }
+    }
+
+    async function toggleMaintenance(button) {
+        const isCurrentlyOn = button.classList.contains("enabled");
+        const newState = !isCurrentlyOn; 
+
+        // Optimistic update
+        button.classList.toggle("enabled", newState);
+
+        try {
+            const resp = await fetch("{{ url_for('admin.set_maintenance') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ enabled: newState })
+            });
+            const data = await resp.json();
+            if (data.status !== "success") throw new Error("Server failed");
+        } catch (err) {
+            button.classList.toggle("enabled", isCurrentlyOn); // Revert on error
+            alert("Error: Could not update database.");
+        }
+    }
+
+    // =========================================================
+    // 3. POPULATE DROPDOWNS (Crucial for Reports!)
+    // =========================================================
+    async function loadReportOptions() {
+        try {
+            const resp = await fetch("{{ url_for('admin.get_report_options') }}");
+            const data = await resp.json();
+
+            if (data.status === "success") {
+                // Populate Years
+                const yearSelect = document.getElementById("yearSelect");
+                yearSelect.innerHTML = '<option value="">Select Year</option>';
+                data.years.forEach(year => {
+                    yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
+                });
+
+                // Populate Branches
+                const branchSelect = document.getElementById("branchSelect");
+                branchSelect.innerHTML = '<option value="">Select Branch</option>';
+                data.branches.forEach(branch => {
+                    branchSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+                });
+
+                // Populate Semesters
+                const semSelect = document.getElementById("semesterSelect");
+                semSelect.innerHTML = '<option value="">Select Semester</option>';
+                data.semesters.forEach(sem => {
+                    semSelect.innerHTML += `<option value="${sem}">${sem}</option>`;
+                });
+            }
+        } catch (err) {
+            console.error("Failed to load report options", err);
+        }
+    }
+
+    // =========================================================
+    // 4. DOWNLOAD HANDLER (New API Version + Loading)
+    // =========================================================
+    async function handleReportDownload() {
+        // 1. Get Values
+        const type = document.getElementById("reportTypeSelect").value;
+        const year = document.getElementById("yearSelect").value;
+        const branch = document.getElementById("branchSelect").value;
+        const sem = document.getElementById("semesterSelect").value;
+        const format = document.getElementById("formatSelect").value;
+
+        // 2. Validation
+        if(!type || !year || !branch || !sem) {
+            alert("Please select all fields.");
+            return;
+        }
+
+        // 3. UI Loading State
+        const btn = document.querySelector("button[onclick='handleReportDownload()']");
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "<span>⏳</span> Generating...";
+        btn.disabled = true;
+
+        try {
+            // 4. Send POST Request to Python
+            const response = await fetch("{{ url_for('admin.generate_report') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    report_type: type,
+                    year: year,
+                    branch_id: branch,
+                    semester: sem,
+                    format: format
+                })
+            });
+
+            // 5. Check for JSON Errors (e.g. "No data found")
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Unknown server error");
+            }
+
+            if (!response.ok) throw new Error("Network response was not ok");
+
+            // 6. Handle File Download
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = downloadUrl;
+            
+            // Determine filename
+            let filename = `report.${format === 'excel' ? 'xlsx' : format}`;
+            const disposition = response.headers.get('Content-Disposition');
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) { 
+                    filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+
+        } catch (error) {
+            console.error(error);
+            alert("❌ Error: " + error.message);
+        } finally {
+            // 7. Restore Button
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    // =========================================================
+    // 5. INITIALIZATION
+    // =========================================================
+    document.addEventListener("DOMContentLoaded", () => {
+        initMaintenanceToggle();
+        loadReportOptions(); // <--- THIS WAS MISSING BEFORE!
+    });
+</script>
+
+    
+</body>
+</html>

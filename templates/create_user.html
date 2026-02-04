@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User</title>
+
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg,#f5f7fa,#c3cfe2);
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+        }
+
+        .card {
+            width:100%;
+            max-width:520px;
+            background:white;
+            border-radius:12px;
+            box-shadow:0 10px 40px rgba(0,0,0,0.1);
+            padding:40px 36px;
+            animation:slideUp .4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity:0; transform:translateY(20px); }
+            to { opacity:1; transform:translateY(0); }
+        }
+
+        .header {
+            text-align:center;
+            margin-bottom:24px;
+        }
+
+        .logo {
+            width:64px;
+            height:64px;
+            margin:0 auto 12px;
+            background:#1a3a5c;
+            border-radius:8px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-size:28px;
+        }
+
+        h1 {
+            font-size:20px;
+            color:#1a3a5c;
+            margin-bottom:6px;
+        }
+
+        .subtitle {
+            font-size:13px;
+            color:#7a8a9a;
+        }
+
+        .error-alert {
+            padding:12px;
+            border-radius:8px;
+            margin-bottom:16px;
+            background:#fee2e2;
+            color:#7f1d1d;
+            border:1px solid #fecaca;
+            text-align:center;
+            font-size:13px;
+        }
+
+        .form-group {
+            margin-bottom:18px;
+        }
+
+        label {
+            display:block;
+            font-size:13px;
+            font-weight:600;
+            color:#1a3a5c;
+            margin-bottom:8px;
+        }
+
+        input, select {
+            width:100%;
+            padding:12px 14px;
+            border:2px solid #e0e6ed;
+            border-radius:8px;
+            background:#f9fbfd;
+            font-size:14px;
+        }
+
+        input:focus, select:focus {
+            outline:none;
+            border-color:#10b981;
+            background:white;
+        }
+
+        .row {
+            display:flex;
+            gap:12px;
+        }
+
+        .col {
+            flex:1;
+        }
+
+        .btn {
+            width:100%;
+            padding:12px;
+            background:#1a3a5c;
+            color:white;
+            border:none;
+            border-radius:8px;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        .btn:hover {
+            background:#16324f;
+        }
+
+        .back {
+            display:inline-block;
+            margin-top:16px;
+            color:#1a3a5c;
+            text-decoration:none;
+            font-size:13px;
+            font-weight:600;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="header">
+        <div class="logo">🏛️</div>
+        <h1>Create User</h1>
+        <p class="subtitle">Add HOD or Staff account</p>
+    </div>
+
+    {% if error %}
+        <div class="error-alert">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('admin.create_user') }}">
+
+      
+
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="email" placeholder="username" required>
+        </div>
+
+        <div class="form-group row">
+            <div class="col">
+                <label>Role</label>
+                <select name="role" required>
+                    <option value="">Select role</option>
+                    {% for r in roles %}
+                        {% if r.role_name != 'ADMIN' %}
+                            <option value="{{ r.role_name }}">{{ r.role_name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Department</label>
+                <select name="department" required>
+                    <option value="">Select Branch</option>
+                    {% for b in branches %}
+                        <option value="{{ b.branch_id }}">{{ b.branch_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" name="confirm_password" required>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn">Create User</button>
+        </div>
+
+    </form>
+
+    <a class="back" href="{{ url_for('admin.admin_dashboard') }}">⬅ Back to Dashboard</a>
+
+</div>
+
+</body>
+</html>
