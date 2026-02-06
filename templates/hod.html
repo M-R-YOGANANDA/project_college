@@ -327,6 +327,28 @@
             width: 100%; padding: 10px 12px; border: 1px solid #e8ecf1; border-radius: 6px; font-size: 13px; color: #1a3a5c; background: white; transition: all 0.25s ease; font-family: inherit;
         }
 
+        /* Match modal table inputs with the rest of the UI */
+.data-table .edit-input,
+.data-table .edit-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e8ecf1;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #1a3a5c;
+    background: white;
+    transition: all 0.25s ease;
+    font-family: inherit;
+}
+
+.data-table .edit-input:focus,
+.data-table .edit-select:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+
         .semester-radios { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .semester-radios label { display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px; background: #f9fbfd; border: 1px solid transparent; cursor: pointer; font-size: 13px; color: #1a3a5c; }
         .semester-radios input[type="checkbox"], .semester-radios input[type="radio"] { width: 18px; height: 18px; accent-color: #10b981; cursor: pointer; }
@@ -340,6 +362,16 @@
         .custom-select__option { padding: 10px 12px; cursor: pointer; color: #1a3a5c; }
         .custom-select__option:hover { background: #f9fbfd; }
         .custom-select.disabled { opacity: 0.6; pointer-events: none; }
+
+        /* Update this class to allow scrolling inside modals */
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid #e8ecf1;
+            border-radius: 8px;
+            background: white;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
 
         .form-group select:focus, .form-group input[type="file"]:focus, .form-group input[type="text"]:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         .file-input-group { position: relative; }
@@ -404,6 +436,10 @@
         <div class="nav-item" onclick="switchSection('student-management', this)">
             <span class="nav-icon">👥</span>
             <span>Student Management</span>
+        </div>
+        <div class="nav-item" onclick="switchSection('course-management', this)">
+            <span class="nav-icon">📘</span>
+            <span>Course Management</span>
         </div>
         <div class="nav-item" onclick="switchSection('staff-allocation', this)">
             <span class="nav-icon">👨‍🏫</span>
@@ -472,165 +508,649 @@
                         </div>
                     </div>
                 </div>
+                                <div class="dashboard-card">
+                    <div class="card-label">CIE Status</div>
+                    <div class="card-content">
+                        <div>
+                            <div style="font-size: 14px; font-weight: 600; color: #1a3a5c;" id="cieCardText">Currently Open</div>
+                            <div class="status-badge open" id="cieCardBadge">
+                                <span class="status-circle open" id="cieCardIndicator"></span>
+                                <span id="cieCardBadgeText">Open for Editing</span>
+                            </div>
+                        </div>
+                        <div class="card-icon" aria-hidden="true"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="student-management" class="content-section">
-            <div class="page-header"><h2 class="page-title">Student Management</h2></div>
-            <div class="table-wrapper">
-                <table class="data-table" id="studentTable">
-                    <thead>
-                        <tr>
-                            <th>Register Number</th>
-                            <th>Student Name</th>
-                            <th>Semester</th>
-                            <th>Batch</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div id="student-management" class="content-section">
+            
+            <div class="page-header">
+                <h2 class="page-title">Student Management</h2>
+                <p class="page-subtitle">Manage student master data and enrollment records</p>
             </div>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="openAddStudentModal()">Add Student Individually</button>
-            </div>
-        </div>
+                            <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Register Number</th>
+                                <th>Student Name</th>
+                                <th>Semester</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                                <tr>
+                                    <td>21CSE001</td>
+                                    <td>Aarav Sharma</td>
+                                    <td>1st</td>
+                                </tr>
+                                <tr>
+                                    <td>21CSE002</td>
+                                    <td>Bhavna Desai</td>
+                                    <td>1st</td>
+                                </tr>
+                                <tr>
+                                    <td>20CSE045</td>
+                                    <td>Chaitanya Reddy</td>
+                                    <td>3rd</td>
+                                </tr>
+                                <tr>
+                                    <td>19CSE102</td>
+                                    <td>Deepa Gupta</td>
+                                    <td>5th</td>
+                                </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-        <div id="staff-allocation" class="content-section">
-            <div class="page-header"><h2 class="page-title">Staff Allocation</h2></div>
             <div class="control-section">
-                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Current Allocations</h3>
+                <h3 style="font-size: 16px; font-weight: 600; color: #1a3a5c; margin-bottom: 20px;">Upload Student List</h3>
+                <div style="margin-bottom: 15px;">
+                    <a href="/hod/download-student-template" class="btn btn-secondary" style="text-decoration: none; font-size: 12px;">
+                        ⬇️ Download Excel Template
+                    </a>
+                </div>
+
+                <div class="file-input-group form-group">
+                    <input type="file" id="studentFile" accept=".xlsx">
+                    <label for="studentFile" class="file-input-label">
+                        <span>📁</span>
+                        <span id="fileNameDisplay">Click to upload student list (.xlsx only)</span>
+                    </label>
+                </div>
+                <button class="btn btn-primary" onclick="uploadStudentFile()">Add Students</button>
+            </div>
+
+            <!-- Student Actions Side by Side -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:16px;">
+                <!-- Edit Students -->
+                <div class="control-section" style="margin-bottom:0;">
+                    <h4 style="margin:0 0 12px 0; font-size:15px; font-weight:600; color:#1a3a5c;">Edit Students</h4>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="openEditStudentsModal()">Edit Students</button>
+                    </div>
+                </div>
+
+                <!-- Add single student (modal) -->
+                <div class="control-section" style="margin-bottom:0;">
+                    <h4 style="margin:0 0 12px 0; font-size:15px; font-weight:600; color:#1a3a5c;">Add Student Individually</h4>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="openAddStudentModal()">Add Student</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== COURSE MANAGEMENT ========== -->
+        <div id="course-management" class="content-section">
+            <div class="page-header">
+                <h2 class="page-title">Course Management</h2>
+                <p class="page-subtitle">Add and manage course details for the department</p>
+            </div>
+
+            <div class="control-section">
+                <h3 style="font-size:16px; font-weight:600; color:#1a3a5c; margin-bottom:16px;">
+                    Add New Course
+                </h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Course Name</label>
+                        <input type="text" id="newCourseName" placeholder="e.g. Operating Systems">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Course Code</label>
+                        <input type="text" id="newCourseCode" placeholder="e.g. 20CS44T">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Syllabus Name</label>
+                        <input type="text" id="newCourseSyllabus" placeholder="e.g. c-20">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Semester</label>
+                        <select id="newCourseSemester">
+                            <option value="">Select Semester</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="addCourse()">
+                        ➕ Add Course
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== STAFF ALLOCATION ========== -->
+        <div id="staff-allocation" class="content-section">
+            <div class="page-header">
+                <h2 class="page-title">Staff Allocation</h2>
+                <p class="page-subtitle">Allocate teaching staff to subjects, classes, and lab batches</p>
+            </div>
+
+
+
+            <div class="control-section">
+                <h3 style="font-size: 16px; font-weight: 600; color: #1a3a5c; margin-bottom: 16px;">Current Allocations</h3>
+                
                 <div class="table-wrapper">
-                    <table class="data-table" id="allocationTable">
+                    <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Semester</th>
                                 <th>Course</th>
                                 <th>Course Code</th>
                                 <th>Staff Name</th>
-                                <th>Type</th>
+                                <th>Theory/Practical</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody id="allocationTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center;">Loading allocations...</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="openAllocationModal()">Create New Allocation</button>
+
+                        <div class="control-section">
+                <h3 style="font-size: 16px; font-weight: 600; color: #1a3a5c; margin-bottom: 20px;">Allocation Actions</h3>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="openAllocationModal()">Create New Allocation</button>
+                    <button class="btn btn-secondary" onclick="openManageAllocModal()">Manage Allocations</button>
+                    <button class="btn btn-secondary" onclick="openEditAllocModal()">Edit Allocations</button>
+                </div>
             </div>
         </div>
 
+        <!-- ========== CONTROLLERS ========== -->
         <div id="controllers" class="content-section">
-            <div class="page-header"><h2 class="page-title">Controller</h2></div>
-            <div class="control-section">
-                <div class="control-item">
+            <div class="page-header">
+                <h2 class="page-title">Controller</h2>
+                <p class="page-subtitle">Manage editing permissions for attendance and CIE marks</p>
+            </div>
+
+                        <!-- CIE Control Box -->
+            <div class="control-section" style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
                     <div>
-                        <h3 class="control-name">CIE Controller</h3>
-                        <p class="control-description">Enable/Disable CIE marks entry</p>
+                        <h3 style="font-size: 15px; font-weight: 600; color: #1a3a5c; margin: 0 0 6px 0;">CIE Controller</h3>
+                        <p style="font-size: 13px; color: #7a8a9a; margin: 0;">Enable or disable staff ability to edit CIE marks</p>
                     </div>
-                    <button id="cieToggle" class="toggle-switch" onclick="toggleCIE(this)"></button>
+                    <button id="cieToggle" class="toggle-switch enabled" onclick="toggleCIE(this)" style="flex-shrink: 0;"></button>
                 </div>
-                <div class="control-item">
-                    <div>
-                        <h3 class="control-name">Attendance Controller</h3>
-                        <p class="control-description">Enable/Disable attendance editing</p>
+                <div style="margin-top:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                    <div style="display:flex; flex-direction:column; gap:6px; min-width:220px;">
+                        <label style="font-size:13px; color:#7a8a9a;">CIE Type</label>
+                        <input id="cieTypeInput" type="text" placeholder="e.g. Midterm, Assignment" style="padding:8px; border:1px solid #e8ecf1; border-radius:6px;" />
                     </div>
-                    <button id="attendanceToggle" class="toggle-switch" onclick="toggleAttendance(this)"></button>
-                </div>
-                <div style="margin-top:12px;">
-                    <label style="font-size:13px;">Month</label>
-                    <div id="attendanceMonthSelect" class="custom-select" data-value="01">
-                        <div class="custom-select__selection">Select Month</div>
-                        <div class="custom-select__options">
-                            <div class="custom-select__option" data-value="01">January</div>
-                            <div class="custom-select__option" data-value="02">February</div>
-                            <div class="custom-select__option" data-value="03">March</div>
-                            <div class="custom-select__option" data-value="04">April</div>
-                            <div class="custom-select__option" data-value="05">May</div>
-                            <div class="custom-select__option" data-value="06">June</div>
-                            <div class="custom-select__option" data-value="07">July</div>
-                            <div class="custom-select__option" data-value="08">August</div>
-                            <div class="custom-select__option" data-value="09">September</div>
-                            <div class="custom-select__option" data-value="10">October</div>
-                            <div class="custom-select__option" data-value="11">November</div>
-                            <div class="custom-select__option" data-value="12">December</div>
+
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:13px; color:#7a8a9a;">Semester</label>
+                        <div id="cieSemesterSelect" class="semester-radios" aria-label="CIE Semester">
+                            <label><input type="checkbox" name="cieSemester" value="1">1</label>
+                            <label><input type="checkbox" name="cieSemester" value="2">2</label>
+                            <label><input type="checkbox" name="cieSemester" value="3">3</label>
+                            <label><input type="checkbox" name="cieSemester" value="4">4</label>
+                            <label><input type="checkbox" name="cieSemester" value="5">5</label>
+                            <label><input type="checkbox" name="cieSemester" value="6">6</label>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Attendance Control Box -->
+            <div class="control-section" style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+                    <div>
+                        <h3 style="font-size: 15px; font-weight: 600; color: #1a3a5c; margin: 0 0 6px 0;">Attendance Controller</h3>
+                        <p style="font-size: 13px; color: #7a8a9a; margin: 0;">Enable or disable staff ability to edit attendance records</p>
+                    </div>
+                    <button id="attendanceToggle" class="toggle-switch enabled" onclick="toggleAttendance(this)" style="flex-shrink: 0;"></button>
+                </div>
+                <div style="margin-top:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:13px; color:#7a8a9a;">Month</label>
+                        <div id="attendanceMonthSelect" class="custom-select" tabindex="0" data-value="">
+                            <div class="custom-select__selection">Select Month</div>
+                            <div class="custom-select__options" role="listbox">
+                                <div class="custom-select__option" data-value="01">January</div>
+                                <div class="custom-select__option" data-value="02">February</div>
+                                <div class="custom-select__option" data-value="03">March</div>
+                                <div class="custom-select__option" data-value="04">April</div>
+                                <div class="custom-select__option" data-value="05">May</div>
+                                <div class="custom-select__option" data-value="06">June</div>
+                                <div class="custom-select__option" data-value="07">July</div>
+                                <div class="custom-select__option" data-value="08">August</div>
+                                <div class="custom-select__option" data-value="09">September</div>
+                                <div class="custom-select__option" data-value="10">October</div>
+                                <div class="custom-select__option" data-value="11">November</div>
+                                <div class="custom-select__option" data-value="12">December</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <label style="font-size:13px; color:#7a8a9a;">Semester</label>
+                        <div id="attendanceSemesterSelect" class="semester-radios" aria-label="Attendance Semester">
+                            <label><input type="checkbox" name="attendanceSemester" value="1">1</label>
+                            <label><input type="checkbox" name="attendanceSemester" value="2">2</label>
+                            <label><input type="checkbox" name="attendanceSemester" value="3">3</label>
+                            <label><input type="checkbox" name="attendanceSemester" value="4">4</label>
+                            <label><input type="checkbox" name="attendanceSemester" value="5">5</label>
+                            <label><input type="checkbox" name="attendanceSemester" value="6">6</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
 
         <div id="cie-finalization" class="content-section">
-            <div class="page-header"><h2 class="page-title">CIE Paper</h2></div>
-            <div class="table-wrapper">
-                <table class="data-table" id="ciePaperTable">
-                    <thead>
-                        <tr>
-                            <th>Semester</th>
-                            <th>Subject</th>
-                            <th>CIE Type</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cieUploadsTableBody"></tbody>
-                </table>
-            </div>
-        </div>
+    <div class="page-header">
+        <h2 class="page-title">CIE Paper Submissions</h2>
+    </div>
 
+    <div class="control-section">
+        <div class="table-wrapper">
+            <table class="data-table" id="ciePaperTable">
+                <thead>
+                    <tr>
+                        <th>Semester</th>
+                        <th>Subject</th>
+                        <th>Staff</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+                <tbody id="cieUploadsTableBody">
+                    </tbody>
+            </table>
+        </div>
+        <div class="btn-group" style="margin-top: 20px;">
+            <button class="btn btn-danger" onclick="clearCIEList()">
+                🗑️ Clear old Submissions
+            </button>
+        </div>
+    </div>
+</div>
+
+        <!-- ========== REPORTS ========== -->
         <div id="reports" class="content-section">
-            <div class="page-header"><h2 class="page-title">Reports</h2></div>
+            <div class="page-header">
+                <h2 class="page-title">Reports</h2>
+                <p class="page-subtitle">Generate and view academic performance reports</p>
+            </div>
+
             <div class="control-section">
-                <button class="btn btn-primary" onclick="downloadReport()">📥 Download Report (PDF)</button>
-            </div>
-        </div>
+               <div class="form-row">
+    <div class="form-group">
+        <label>Report Type</label>
+        <select id="reportTypeSelect">
+            <option value="">Select Type</option>
+            <option value="cie">CIE Report</option>
+            <option value="attendance">Attendance Report</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>Year</label>
+        <select id="yearSelect">
+            <option value="">Loading Years...</option>
+        </select>
     </div>
 
-    <div id="addStudentModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">Add Student</div>
-            <div class="form-group"><label>Register No</label><input type="text" id="modalRegNo"></div>
-            <div class="form-group"><label>Name</label><input type="text" id="modalName"></div>
-            <div class="form-group"><label>Semester</label><input type="number" id="modalSem"></div>
-            <div class="form-group">
-                <label>Batch</label>
-                <select id="modalBatch">
-                    <option value="">Entire Class</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeAddStudentModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="submitStudent()">Save</button>
-            </div>
-        </div>
+    <div class="form-group">
+        <label>Semester</label>
+        <select id="semesterSelect" onchange="updateReportSubjects()">
+            <option value="">Select Semester</option>
+            <option value="1">1st Semester</option>
+            <option value="2">2nd Semester</option>
+            <option value="3">3rd Semester</option>
+            <option value="4">4th Semester</option>
+            <option value="5">5th Semester</option>
+            <option value="6">6th Semester</option>
+        </select>
     </div>
 
+    <div class="form-group">
+        <label>Subject</label>
+        <select id="subjectSelect">
+            <option value="">Select Semester First</option>
+        </select>
+    </div>
+</div>
+        <div class="btn-group">
+<button class="btn btn-primary" onclick="generateHODReport()">
+    Generate Report
+</button>
+<button class="btn btn-primary" onclick="downloadReport()">
+    📥 Download Report (PDF)
+</button>            </button>
+        </div>
+    </div>
+</div>
+        </div>
+
+    </div>
+
+    <!-- ==================== MODAL ==================== -->
+    <!-- Allocation Modal (Create New Allocation) -->
     <div id="allocationModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">New Allocation</div>
-            <div class="form-group"><label>Semester</label><input type="number" id="allocSem"></div>
-            <div class="form-group"><label>Subject</label><input type="text" id="allocSubject"></div>
-            <div class="form-group"><label>Staff ID</label><input type="number" id="allocStaffId"></div>
-            <div class="form-group">
-                <label>Type</label>
-                <select id="allocType">
-                    <option value="Theory">Theory</option>
-                    <option value="Lab A">Lab A</option>
-                    <option value="Lab B">Lab B</option>
-                </select>
+            <div class="modal-header">Create New Allocation</div>
+            <div class="modal-body">
+                <div class="form-row">
+    <div class="form-group">
+        <label>Semester</label>
+        <select id="reportSemester" onchange="updateAllocationSubjects()">
+            <option value="">Select Semester</option>
+            <option value="1">1st</option>
+            <option value="2">2nd</option>
+            <option value="3">3rd</option>
+            <option value="4">4th</option>
+            <option value="5">5th</option>
+            <option value="6">6th</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Subject</label>
+        <select id="reportSubject">
+            <option value="">Select Semester First</option>
+        </select>
+    </div>
+</div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Staff Member</label>
+                        <select id="allocStaffModal">
+                            <option value="">Loading staff...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Allocation Type</label>
+                        <select id="allocTypeModal">
+                            <option value="theory">Theory (Entire Class)</option>
+                            <option value="lab-a">Lab (Batch A)</option>
+                            <option value="lab-b">Lab (Batch B)</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeAllocationModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="submitAllocation()">Allocate</button>
+                <button class="btn btn-primary" id="allocationSubmitBtn" onclick="submitAllocation()">Create Allocation</button>
             </div>
         </div>
     </div>
+
+    <!-- Manage Allocations Modal -->
+    <div id="manageAllocModal" class="modal">
+        <div class="modal-content" style="max-width:800px; width:95%;">
+            <div class="modal-header">Manage Allocations</div>
+            <div class="modal-body">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Semester</th>
+                                <th>Course</th>
+                                <th>Course Code</th>
+                                <th>Staff Name</th>
+                                <th>Theory/Practical</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manageAllocTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeManageAllocModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Allocations Modal -->
+    <div id="editAllocModal" class="modal">
+        <div class="modal-content" style="max-width:900px; width:95%;">
+            <div class="modal-header">Edit Allocations</div>
+            <div class="modal-body">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Semester</th>
+                                <th>Course</th>
+                                <th>Course Code</th>
+                                <th>Staff Name</th>
+                                <th>Theory/Practical</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editAllocTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditAllocModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEditedAllocations()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Students Modal (Edit all enrolled students in a popup) -->
+    <div id="editStudentsModal" class="modal">
+        <div class="modal-content" style="max-width:900px; width:95%;">
+            <div class="modal-header">Edit Enrolled Students</div>
+            <div class="modal-body">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Register Number</th>
+                                <th>Student Name</th>
+                                <th>Semester</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editStudentsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditStudentsModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEditedStudents()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content" style="max-width:520px; width:95%;">
+            <div class="modal-header">Add Student</div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Register Number</label>
+                        <input id="modalNewRegNo" type="text" placeholder="e.g. 21CSE010">
+                    </div>
+                    <div class="form-group">
+                        <label>Student Name</label>
+                        <input id="modalNewStudentName" type="text" placeholder="Full name">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Semester</label>
+                        <select id="modalNewSemester">
+                            <option value="">Select Semester</option>
+                            <option value="1">1st</option>
+                            <option value="2">2nd</option>
+                            <option value="3">3rd</option>
+                            <option value="4">4th</option>
+                            <option value="5">5th</option>
+                            <option value="6">6th</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddStudentModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitAddStudentModal()">Add Student</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader"></div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-danger" id="modalConfirmBtn" onclick="handleConfirm()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed Logout (bottom-left) -->
+  
 
     <div class="logout-fixed">
         <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">🚪 Logout</a>
     </div>
 
     <script>
+        // 1. Load Academic Years automatically on page load
+async function initializeDropdowns() {
+    try {
+        const resp = await fetch('/hod/get-dropdown-data');
+        const data = await resp.json();
+
+        const yearSelect = document.getElementById('yearSelect');
+        if (yearSelect) {
+            yearSelect.innerHTML = '<option value="">Select Year</option>';
+            (data.years || []).forEach(year => {
+                yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
+            });
+        }
+
+        const semDropdowns = [
+            document.getElementById('semesterSelect'),
+            document.getElementById('reportSemester'),
+            document.getElementById('newCourseSemester'),
+            document.getElementById('modalNewSemester')
+        ];
+
+        semDropdowns.forEach(select => {
+            if (select) {
+                select.innerHTML = '<option value="">Select Semester</option>';
+                (data.semesters || []).forEach(sem => {
+                    select.innerHTML += `<option value="${sem}">${sem} Semester</option>`;
+                });
+            }
+        });
+    } catch (err) {
+        console.error("Failed to load dropdown data", err);
+    }
+}
+
+// 2. Load Subjects dynamically when Semester is chosen
+        async function updateAllocationSubjects() {
+            const sem = document.getElementById('reportSemester').value;
+            const subSelect = document.getElementById('reportSubject');
+            if (!sem) return;
+
+            subSelect.innerHTML = '<option>Loading...</option>';
+
+            const res = await fetch(`/hod/get-subjects-by-sem?semester=${sem}`);
+            const data = await res.json();
+
+            subSelect.innerHTML = '<option value="">Select Subject</option>';
+            if (data.subjects && data.subjects.length > 0) {
+                data.subjects.forEach(s => {
+                    subSelect.innerHTML += `<option value="${s.name}">${s.name} (${s.code})</option>`;
+                });
+            } else {
+                subSelect.innerHTML = '<option value="">No subjects found</option>';
+            }
+        }
+
+        async function updateReportSubjects() {
+            const sem = document.getElementById('semesterSelect').value;
+            const subSelect = document.getElementById('subjectSelect');
+            if (!sem) return;
+
+            const res = await fetch(`/hod/get-subjects-by-sem?semester=${sem}`);
+            const data = await res.json();
+
+            subSelect.innerHTML = '<option value="">Select Subject</option>';
+            (data.subjects || []).forEach(s => {
+                subSelect.innerHTML += `<option value="${s.name}">${s.name}</option>`;
+            });
+        }
+
+        async function fetchSubjectsForDropdown(semester, dropdownElement) {
+            dropdownElement.innerHTML = '<option value="">⏳ Loading...</option>';
+
+            try {
+                const resp = await fetch(`/hod/get-subjects-by-sem?semester=${semester}`);
+                const data = await resp.json();
+
+                if (data.status === "success") {
+                    dropdownElement.innerHTML = '<option value="">Select Subject</option>';
+                    if (data.subjects.length === 0) {
+                        dropdownElement.innerHTML += '<option value="" disabled>No subjects found</option>';
+                    } else {
+                        data.subjects.forEach(sub => {
+                            dropdownElement.innerHTML += `<option value="${sub.name}">${sub.name}</option>`;
+                        });
+                    }
+                } else {
+                    dropdownElement.innerHTML = '<option value="">Error loading subjects</option>';
+                }
+            } catch (err) {
+                console.error(err);
+                dropdownElement.innerHTML = '<option value="">Server Error</option>';
+            }
+        }
+
+// Trigger initial load
+document.addEventListener("DOMContentLoaded", initializeDropdowns);
         // Navigation Logic
         function switchSection(id, el) {
             document.querySelectorAll(".content-section").forEach(s => s.classList.remove("active"));
@@ -640,14 +1160,44 @@
             if (el) el.classList.add("active");
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            initCustomSelect('attendanceMonthSelect');
-            loadDashboard();
-            loadStudents();
-            loadAllocations();
-            loadCIEPapers();
-        });
+document.addEventListener("DOMContentLoaded", () => {
+    initCustomSelect('attendanceMonthSelect');
+    loadDashboard();
+    loadStudents();
+    loadAllocations();
+    loadCIEPapers();
+    loadStaffDropdown();
+});
 
+async function loadStaffDropdown() {
+    const staffSelect = document.getElementById('allocStaffModal');
+    if (!staffSelect) return;
+
+    try {
+        const res = await fetch('/hod/get-staff-list');
+        const staffList = await res.json();
+
+        staffSelect.innerHTML = '<option value="">Select Staff</option>';
+
+        if (staffList.length === 0) {
+            const opt = document.createElement('option');
+            opt.disabled = true;
+            opt.text = "No staff members found";
+            staffSelect.add(opt);
+            return;
+        }
+
+        staffList.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            staffSelect.appendChild(option);
+        });
+    } catch (err) {
+        console.error("Failed to load staff list:", err);
+        staffSelect.innerHTML = '<option value="">Error loading staff</option>';
+    }
+}
         async function loadDashboard() {
             try {
                 const res = await fetch('/hod/dashboard-stats');
@@ -656,12 +1206,12 @@
                 document.getElementById("hodNameLabel").innerText = data.hod_name;
                 document.getElementById("totalStudentsCount").innerText = data.student_count;
                 document.getElementById("totalStaffCount").innerText = data.staff_count;
-                syncToggleState('attendanceToggle', data.attendance_status.enabled, 'attendanceCardBadge', 'attendanceCardIndicator', 'attendanceCardBadgeText');
-                syncToggleState('cieToggle', data.cie_status.enabled);
+                syncToggleState('attendanceToggle', data.attendance_status.enabled, 'attendanceCardBadge', 'attendanceCardIndicator', 'attendanceCardBadgeText', 'attendanceCardText');
+                syncToggleState('cieToggle', data.cie_status.enabled, 'cieCardBadge', 'cieCardIndicator', 'cieCardBadgeText', 'cieCardText');
             } catch (e) { console.error(e); }
         }
 
-        function syncToggleState(btnId, isEnabled, badgeId, indId, txtId) {
+        function syncToggleState(btnId, isEnabled, badgeId, indId, txtId, textId) {
             const btn = document.getElementById(btnId);
             if (btn) isEnabled ? btn.classList.add('enabled') : btn.classList.remove('enabled');
             if (badgeId) {
@@ -671,7 +1221,12 @@
                 badge.className = isEnabled ? "status-badge open" : "status-badge closed";
                 ind.className = isEnabled ? "status-circle open" : "status-circle closed";
                 txt.innerText = isEnabled ? "Open for Editing" : "Editing Disabled";
-                document.getElementById('attendanceCardText').innerText = isEnabled ? "Currently Open" : "Currently Closed";
+            }
+            if (textId) {
+                const textEl = document.getElementById(textId);
+                if (textEl) {
+                    textEl.innerText = isEnabled ? "Currently Open" : "Currently Closed";
+                }
             }
         }
 
@@ -679,8 +1234,15 @@
             try {
                 const res = await fetch('/hod/students');
                 const data = await res.json();
-                const tbody = document.querySelector('#studentTable tbody');
-                tbody.innerHTML = data.map(s => `<tr><td>${s.register_no}</td><td>${s.name}</td><td>${s.semester}</td><td>${s.batch || 'Entire Class'}</td></tr>`).join('');
+                const tbody = document.getElementById('studentTableBody');
+                if (!tbody) return;
+                tbody.innerHTML = data.map(s => `
+                    <tr>
+                        <td>${s.register_no}</td>
+                        <td>${s.name}</td>
+                        <td>${s.semester}</td>
+                    </tr>
+                `).join('');
             } catch (e) { console.error(e); }
         }
 
@@ -688,48 +1250,323 @@
             try {
                 const res = await fetch('/hod/allocations');
                 const data = await res.json();
-                const tbody = document.querySelector('#allocationTable tbody');
-                tbody.innerHTML = data.map(a => `<tr><td>${a.semester}</td><td>${a.subject}</td><td>${a.code || '--'}</td><td>${a.staff}</td><td>${a.batch || 'Theory'}</td></tr>`).join('');
-            } catch (e) { console.error(e); }
+                
+                const tbody = document.getElementById('allocationTableBody');
+                if (!tbody) return;
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No allocations found.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(a => `
+                    <tr>
+                        <td>${a.semester}</td>
+                        <td>${a.subject}</td>
+                        <td style="font-family:monospace; font-weight:600;">${a.code}</td>
+                        <td>${a.staff}</td>
+                        <td>
+                            <span class="status-badge ${a.type.includes('Lab') ? 'closed' : 'open'}" 
+                                  style="background:${a.type.includes('Lab') ? '#fff7ed' : '#f0fdf4'}; color:${a.type.includes('Lab') ? '#c2410c' : '#15803d'};">
+                                ${a.type}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error("Failed to load allocations:", e);
+            }
+        }
+
+        async function addCourse() {
+            const name = document.getElementById('newCourseName').value.trim();
+            const code = document.getElementById('newCourseCode').value.trim();
+            const syllabus = document.getElementById('newCourseSyllabus').value.trim();
+            const semester = document.getElementById('newCourseSemester').value;
+
+            if (!name || !code || !syllabus || !semester) {
+                alert('Please fill in all fields:\n- Course Name\n- Course Code\n- Syllabus\n- Semester');
+                return;
+            }
+
+            const payload = {
+                name: name,
+                code: code,
+                syllabus: syllabus,
+                semester: semester
+            };
+
+            const btn = document.querySelector('button[onclick="addCourse()"]');
+            const originalText = btn ? btn.innerText : 'Add Course';
+            if (btn) {
+                btn.innerText = "Adding...";
+                btn.disabled = true;
+            }
+
+            try {
+                const res = await fetch('/hod/add-course', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(data.message);
+                    document.getElementById('newCourseName').value = '';
+                    document.getElementById('newCourseCode').value = '';
+                    document.getElementById('newCourseSyllabus').value = '';
+                    document.getElementById('newCourseSemester').value = '';
+                } else {
+                    alert("Error: " + (data.error || "Failed to add course"));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Server error occurred. Please check console.");
+            } finally {
+                if (btn) {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            }
         }
 
         function openAddStudentModal() { document.getElementById('addStudentModal').classList.add('active'); }
         function closeAddStudentModal() { document.getElementById('addStudentModal').classList.remove('active'); }
         function openAllocationModal() { document.getElementById('allocationModal').classList.add('active'); }
         function closeAllocationModal() { document.getElementById('allocationModal').classList.remove('active'); }
+        function openEditStudentsModal() { document.getElementById('editStudentsModal').classList.add('active'); }
+        function closeEditStudentsModal() { document.getElementById('editStudentsModal').classList.remove('active'); }
 
-        async function submitStudent() {
-            const payload = { 
-                register_no: document.getElementById('modalRegNo').value, 
-                name: document.getElementById('modalName').value, 
-                semester: document.getElementById('modalSem').value, 
-                batch: document.getElementById('modalBatch').value 
-            };
-            const res = await fetch('/hod/add-student', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-            if (res.ok) { closeAddStudentModal(); loadStudents(); loadDashboard(); }
+    async function submitAddStudentModal() {
+    const regNo = document.getElementById('modalNewRegNo').value.trim();
+    const name = document.getElementById('modalNewStudentName').value.trim();
+    const semester = document.getElementById('modalNewSemester').value;
+
+    if (!regNo || !name || !semester) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    const payload = {
+        register_no: regNo,
+        name: name,
+        semester: semester
+    };
+
+    try {
+        const res = await fetch('/hod/add-student', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            alert(data.message);
+            closeAddStudentModal();
+            loadStudents();
+            document.getElementById('modalNewRegNo').value = "";
+            document.getElementById('modalNewStudentName').value = "";
+        } else {
+            alert("Error: " + data.error);
         }
+    } catch (err) {
+        console.error(err);
+        alert("Failed to add student.");
+    }
+}
 
-        async function submitAllocation() {
-            const payload = { 
-                sem: document.getElementById('allocSem').value, 
-                subject: document.getElementById('allocSubject').value, 
-                staff: document.getElementById('allocStaffId').value, 
-                type: document.getElementById('allocType').value 
-            };
-            const res = await fetch('/hod/create-allocation', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-            if (res.ok) { closeAllocationModal(); loadAllocations(); }
+        async function openEditStudentsModal() {
+    document.getElementById('editStudentsModal').classList.add('active');
+    await loadEditableStudents();
+}
+
+async function saveEditedStudents() {
+    const rows = document.querySelectorAll('#editStudentsTableBody tr');
+    const students = [];
+
+    rows.forEach(row => {
+        const id = row.getAttribute('data-id');
+        const reg = row.querySelector('.reg-input').value.trim();
+        const name = row.querySelector('.name-input').value.trim();
+        const sem = row.querySelector('.sem-select').value;
+
+        students.push({
+            student_id: id,
+            register_no: reg,
+            name: name,
+            semester: sem
+        });
+    });
+
+    try {
+        const res = await fetch('/hod/update-students', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ students: students })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("Changes saved successfully!");
+            closeEditStudentsModal();
+            loadStudents();
+        } else {
+            alert("Error: " + (data.error || "Update failed"));
+        }
+    } catch (e) {
+        console.error("Save error:", e);
+        alert("Failed to save students.");
+    }
+}
+
+
+function closeEditStudentsModal() {
+    document.getElementById('editStudentsModal').classList.remove('active');
+}
+
+async function loadEditableStudents() {
+    try {
+        const res = await fetch('/hod/students');
+        const data = await res.json();
+        const tbody = document.getElementById('editStudentsTableBody');
+
+        tbody.innerHTML = data.map(s => `
+            <tr data-id="${s.student_id}">
+                <td>
+                    <input type="text" value="${s.register_no}" class="edit-input reg-input">
+                </td>
+                <td>
+                    <input type="text" value="${s.name}" class="edit-input name-input">
+                </td>
+                <td>
+                    <select class="edit-select sem-select">
+                        ${renderSemesterOptions(s.semester)}
+                    </select>
+                </td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        console.error("Failed to load editable students:", e);
+    }
+}
+
+function renderSemesterOptions(current) {
+    const sem = String(current).match(/\d+/)?.[0] || "";
+    const semesters = ["1","2","3","4","5","6"];
+    return semesters.map(v =>
+        `<option value="${v}" ${sem === v ? 'selected' : ''}>${v}</option>`
+    ).join('');
+}
+
+
+function renderBatchOptions(current) {
+    const batches = ["A","B"];
+    return batches.map(v =>
+        `<option value="${v}" ${String(current).toUpperCase() === v ? 'selected' : ''}>${v}</option>`
+    ).join('');
+}
+
+async function submitAllocation() {
+    const sem = document.getElementById('reportSemester').value;
+    const subject = document.getElementById('reportSubject').value;
+    const staff = document.getElementById('allocStaffModal').value;
+    const type = document.getElementById('allocTypeModal').value;
+
+    if (!sem || !subject || !staff) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    const btn = document.getElementById("allocationSubmitBtn");
+    btn.innerText = "Saving...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/hod/create-allocation', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ sem, subject, staff, type })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("Allocation Created Successfully!");
+            closeAllocationModal();
+            loadAllocations();
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch (e) {
+        alert("Server Error");
+    } finally {
+        btn.innerText = "Create Allocation";
+        btn.disabled = false;
+    }
+}
+
+
+        function getCheckedValues(name) {
+            return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`))
+                .map(cb => cb.value);
         }
 
         async function toggleAttendance(btn) {
             const isEnabled = !btn.classList.contains('enabled');
             const month = document.getElementById("attendanceMonthSelect").dataset.value;
-            const res = await fetch('/hod/update-control', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ type: 'attendance', enabled: isEnabled, details: { month }}) });
+            const semesters = getCheckedValues('attendanceSemester');
+
+            if (isEnabled) {
+                if (!month) {
+                    alert("Please select a month.");
+                    return;
+                }
+                if (!semesters.length) {
+                    alert("Please select at least one semester.");
+                    return;
+                }
+            }
+
+            const res = await fetch('/hod/update-control', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    type: 'attendance',
+                    enabled: isEnabled,
+                    details: { month, semesters }
+                })
+            });
             if (res.ok) loadDashboard();
         }
 
         async function toggleCIE(btn) {
             const isEnabled = !btn.classList.contains('enabled');
-            const res = await fetch('/hod/update-control', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ type: 'cie', enabled: isEnabled }) });
+            const cieType = document.getElementById("cieTypeInput").value.trim();
+            const semesters = getCheckedValues('cieSemester');
+
+            if (isEnabled) {
+                if (!cieType) {
+                    alert("Please enter a CIE type.");
+                    return;
+                }
+                if (!semesters.length) {
+                    alert("Please select at least one semester.");
+                    return;
+                }
+            }
+
+            const res = await fetch('/hod/update-control', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    type: 'cie',
+                    enabled: isEnabled,
+                    details: { cie_type: cieType, semesters }
+                })
+            });
             if (res.ok) loadDashboard();
         }
 
@@ -747,14 +1584,170 @@
         }
 
         async function loadCIEPapers() {
-            try {
-                const res = await fetch('/hod/cie-uploads');
-                const data = await res.json();
-                const tbody = document.getElementById('cieUploadsTableBody');
-                if (tbody) tbody.innerHTML = data.map(p => `<tr><td>${p.semester}</td><td>${p.subject}</td><td>${p.cieType || ''}</td><td><button class="btn btn-primary btn-sm">Download</button></td></tr>`).join('');
-            } catch (e) { console.log(e); }
+    try {
+        const res = await fetch('/hod/cie-uploads');
+        const data = await res.json();
+        const tbody = document.getElementById('cieUploadsTableBody');
+        
+        if (!tbody) return;
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px;">No new submissions available.</td></tr>`;
+            return;
         }
-        function downloadReport() { alert('Report request sent.'); }
+
+        tbody.innerHTML = data.map(p => `
+            <tr>
+                <td>${p.semester}</td>
+                <td>${p.subject_name || p.subject_code || '--'}</td>
+                <td>${p.staff || '--'}</td>
+                <td>
+                    <a href="/hod/download-paper/${p.id}" class="btn btn-primary btn-sm">
+                        📥 Download
+                    </a>
+                </td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        console.error("CIE Paper load failed:", e);
+    }
+}
+
+
+
+
+// Function for the "Clear old Submissions" button
+async function clearCIEList() {
+    if (!confirm("Are you sure? This will hide these papers from the current view.")) return;
+
+    try {
+        const res = await fetch('/hod/clear-cie-list', { method: 'POST' });
+        if (res.ok) {
+            // Re-load the table (it will now be empty because is_displayed is 1)
+            loadCIEPapers();
+            alert("List cleared successfully.");
+        }
+    } catch (e) { console.error("Clear failed:", e); }
+}
+async function generateHODReport() {
+    const type = document.getElementById("reportTypeSelect").value;
+    const year = document.getElementById("yearSelect").value;
+    const sem = document.getElementById("semesterSelect").value;
+    const subject = document.getElementById("subjectSelect").value;
+    const tbody = document.getElementById("reportTableBody");
+    const container = document.getElementById("reportContainer");
+
+    if (!type || !year || !sem) {
+        alert("Please select Report Type, Year, and Semester.");
+        return;
+    }
+
+    try {
+        if (tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">⏳ Generating Report...</td></tr>';
+        if (container) container.style.display = "block";
+
+        const url = `/hod/generate-report-data?type=${type}&year=${year}&semester=${sem}&subject=${encodeURIComponent(subject)}`;
+
+        const resp = await fetch(url);
+        if (!resp.ok) {
+            const errData = await resp.json();
+            throw new Error(errData.message || "Server Error");
+        }
+
+        const result = await resp.json();
+
+        if (result.status === "success") {
+            if (result.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No records found for this selection.</td></tr>';
+            } else {
+                tbody.innerHTML = result.data.map(item => `
+                    <tr>
+                        <td>${item.register_no}</td>
+                        <td>${item.name}</td>
+                        <td>${item.marks}</td>
+                        <td>
+                            <span class="status-badge ${item.grade === 'Fail' || item.grade === 'Shortage' ? 'closed' : 'open'}">
+                                ${item.grade}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        } else {
+            alert("Error: " + result.message);
+        }
+    } catch (e) {
+        console.error("Report Generation Error:", e);
+        if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">Error: ${e.message}</td></tr>`;
+    }
+}
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('studentFile');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        document.getElementById('fileNameDisplay').innerText = e.target.files[0].name;
+                    }
+                });
+            }
+        });
+
+        async function uploadStudentFile() {
+            const fileInput = document.getElementById('studentFile');
+            const file = fileInput ? fileInput.files[0] : null;
+
+            if (!file) {
+                alert("Please select a file first.");
+                return;
+            }
+
+            if (!file.name.endsWith('.xlsx')) {
+                alert("Only .xlsx files are accepted!");
+                fileInput.value = '';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/hod/upload-student-list', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(data.message);
+                    loadStudents();
+                    loadDashboard();
+                    fileInput.value = '';
+                    document.getElementById('fileNameDisplay').innerText = "Click to upload student list (.xlsx only)";
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Upload failed. Check console for details.");
+            }
+        }
+function downloadReport() {
+    const type = document.getElementById("reportTypeSelect").value;
+    const year = document.getElementById("yearSelect").value;
+    const sem = document.getElementById("semesterSelect").value;
+    const subject = document.getElementById("subjectSelect").value;
+
+    if (!type || !year || !sem) {
+        alert("Please select filters first.");
+        return;
+    }
+
+    // Include subject in download URL
+    window.location.href = `/hod/download-report-pdf?type=${type}&year=${year}&semester=${sem}&subject=${encodeURIComponent(subject)}`;
+}
+
+
     </script>
 </body>
 </html>

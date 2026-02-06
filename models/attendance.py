@@ -17,12 +17,18 @@ class Attendance(db.Model):
         nullable=False
     )
 
-    date = db.Column(db.Date, nullable=False)
-    status = db.Column(db.Enum("PRESENT", "ABSENT"), nullable=False)
+    subject_id = db.Column(
+        db.Integer,
+        db.ForeignKey("subjects.subject_id"),
+        nullable=False
+    )
+
+    total_classes = db.Column(db.Integer, nullable=False, default=0)
+    classes_attended = db.Column(db.Integer, nullable=False, default=0)
 
     __table_args__ = (
-        db.UniqueConstraint("student_id", "date", name="unique_student_date"),
+        db.UniqueConstraint("student_id", "subject_id", name="unique_student_subject"),
     )
 
     def __repr__(self):
-        return f"<Attendance student={self.student_id} {self.date}>"
+        return f"<Attendance student={self.student_id} subject={self.subject_id}>"

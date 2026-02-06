@@ -23,6 +23,8 @@ from models.cie_papers import CIEPapers
 from models.backup_log import BackupLog
 from models.role import Role
 from models.branch import Branch
+from models.control import Control
+from models.subjects import Subject   # Importing the subjects model to ensure it's registered with SQLAlchemy
 
 migrate = Migrate()
 

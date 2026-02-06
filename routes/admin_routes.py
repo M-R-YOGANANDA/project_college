@@ -1,7 +1,8 @@
 from flask import (
     Blueprint, render_template, request, redirect, url_for, 
-    session, jsonify, make_response,send_file
+    session, jsonify, make_response,send_file,flash
 )
+from flask_login import current_user
 from utils.decorators import role_required
 from fpdf import FPDF
 from models import User, Role, Setting, Student,Class
@@ -19,9 +20,13 @@ from werkzeug.security import generate_password_hash
 from datetime import datetime
 import pandas as pd
 
+
+
+
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 BACKUP_FOLDER = r"C:\Users\yogan\Desktop\projectbackup"
 os.makedirs(BACKUP_FOLDER, exist_ok=True)
+
 
 # ... (Keep dashboard and create-user routes exactly as they were) ...
 @admin_bp.route("/dashboard")
@@ -35,17 +40,39 @@ def admin_dashboard():
         students_count=Student.query.count(),
         branch_count=db.session.query(Student.branch_id).distinct().count()
     )
-
 @admin_bp.route("/create-user", methods=["GET", "POST"])
 @role_required("admin")
 def create_user():
-    # ... (Keep your existing Create User logic here) ...
     if request.method == "POST":
-        role = Role.query.filter_by(role_name=request.form["role"]).first()
+        role_name = request.form["role"]
         branch_id_input = request.form.get("department")
+        email_input = request.form["email"]
+        
+        # Fetch the selected role object
+        role = Role.query.filter_by(role_name=role_name).first()
+        
+        # --- VALIDATION LOGIC FOR SINGLE HOD PER BRANCH ---
+        if role_name.lower() == "hod":
+            # Check if an HOD already exists for this branch_id
+            existing_hod = User.query.filter_by(
+                branch_id=branch_id_input, 
+                role_id=role.role_id,
+                is_active=True
+            ).first()
+            
+            if existing_hod:
+                error_msg = f"Error: An HOD for the requested department already exists ({existing_hod.username})."
+                return render_template(
+                    "create_user.html", 
+                    roles=Role.query.all(), 
+                    branches=Branch.query.all(), 
+                    error=error_msg
+                )
+        # --------------------------------------------------
+
         try:
             user = User(
-                username=request.form["email"], 
+                username=email_input, 
                 role_id=role.role_id,
                 branch_id=branch_id_input, 
                 password_hash=generate_password_hash(request.form["password"]),
@@ -56,9 +83,14 @@ def create_user():
             return redirect(url_for("admin.admin_dashboard"))
         except Exception as e:
             db.session.rollback()
-            return render_template("create_user.html", roles=Role.query.all(), branches=Branch.query.all(), error=str(e))
-    return render_template("create_user.html", roles=Role.query.all(), branches=Branch.query.all())
+            return render_template(
+                "create_user.html", 
+                roles=Role.query.all(), 
+                branches=Branch.query.all(), 
+                error=str(e)
+            )
 
+    return render_template("create_user.html", roles=Role.query.all(), branches=Branch.query.all())
 # =========================================================
 # 1. SET MAINTENANCE (With debug prints)
 # =========================================================
@@ -105,6 +137,13 @@ def get_maintenance():
     
     return response
 
+
+
+@admin_bp.route("/manage-users")
+@role_required("admin")
+def manage_users():
+    all_users = User.query.all()
+    return render_template("manage_users.html", users=all_users)
 # ... (Keep manual-backup route exactly as it was) ...
 
 @admin_bp.route("/backup-data", methods=["POST"]) # Changed to POST
@@ -146,6 +185,40 @@ def backup_data():
         return jsonify({"status": "error", "message": str(e)}), 500
     
 
+
+#======================================================== delete users route@admin_bp.route("/delete-user", methods=["POST"])
+@admin_bp.route("/delete-user", methods=["POST"])
+@role_required("admin")
+def delete_user():
+    # Retrieve the username from the hidden form input
+    username_to_delete = request.form.get("username")
+
+    if not username_to_delete:
+        flash("Error: No username provided.", "danger")
+        return redirect(url_for("admin.admin_dashboard"))
+
+    try:
+        # Prevent an admin from accidentally deleting themselves
+        if username_to_delete == current_user.username:
+            flash("Error: You cannot delete your own admin account.", "danger")
+            return redirect(url_for("admin.admin_dashboard"))
+
+        # Find the user record
+        user = User.query.filter_by(username=username_to_delete).first()
+
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            flash(f"User {username_to_delete} has been removed.", "success")
+        else:
+            flash("Error: User not found.", "warning")
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f"An error occurred: {str(e)}", "danger")
+
+    # Redirect back to the page where the user list is displayed
+    return redirect(url_for("admin.admin_dashboard"))
 
 
 

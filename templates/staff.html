@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - CPC Polytechnic Mysuru</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        /* a man look at the session chat */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: #1a3a52;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header-info {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 60px;
+            width: 240px;
+            height: calc(100vh - 60px);
+            background-color: #1a3a52;
+            padding: 20px 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 14px 25px;
+            color: #d0d8e0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .nav-item.active {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left-color: #10b981;
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .logout-item {
+            border-left-color: transparent;
+            color: #fca5a5;
+            text-decoration: none;
+        }
+
+        .logout-item:hover {
+            color: #fecaca;
+        }
+
+        /* Main Content */
+        .main-container {
+            margin-left: 240px;
+            margin-top: 60px;
+            padding: 30px;
+            min-height: calc(100vh - 60px);
+            background-color: #f5f7fa;
+        }
+
+        /* Page Title */
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #1a3a52;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1a3a52;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1a3a52;
+        }
+
+        /* Scrollable Container */
+        .scrollable-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+        }
+
+        .subject-item {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background-color: #fafafa;
+        }
+
+        .subject-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .subject-name {
+            font-weight: 600;
+            color: #1a3a52;
+            margin-bottom: 6px;
+        }
+
+        .subject-details {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-enabled {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-disabled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .lock-icon {
+            font-size: 14px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a3a52;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .form-group select,
+        .form-group input[type="date"],
+        .form-group input[type="text"]  {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* File input group (polished upload area) */
+        .file-input-group {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .file-input-group input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 22px;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            background: #ffffff;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .file-input-label:hover {
+            border-color: #10b981;
+            background: #f0fdf9;
+            color: #0f172a;
+        }
+
+        .file-input-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-input-filename {
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 13px;
+        }
+
+        .file-input-hint {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .form-group select:focus,
+        .form-group input[type="date"]:focus,
+        .form-group input[type="text"]:focus  {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-group.disabled select,
+        .form-group.disabled input[type="date"],
+        .form-group.disabled input[type="text"]  {
+            background-color: #f3f4f6;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        /* Period Selector */
+        .period-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .period-btn {
+            padding: 10px;
+            border: 2px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+
+        .period-btn:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .period-btn.active {
+            background-color: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .period-btn.disabled {
+            background-color: #f3f4f6;
+            border-color: #e5e7eb;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background-color: #f9fafb;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a3a52;
+            border-bottom: 2px solid #e5e7eb;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background-color: #d1d5db;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background-color: #10b981;
+        }
+
+        .toggle-switch.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            left: 22px;
+        }
+
+        /* Marks Input */
+        /* Chrome, Edge, Safari */
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            /* Firefox */
+           
+
+        input[type="number"].marks-input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        input[type="number"].marks-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        input[type="number"].marks-input.error {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        /* Attendance Count Input */
+        input[type="number"].attendance-count {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        input[type="number"].attendance-count:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        input[type="number"].attendance-count:disabled {
+            background-color: #f3f4f6;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .attendance-percentage {
+            font-weight: 600;
+            color: #10b981;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #059669;
+        }
+
+        .btn-primary:disabled {
+            background-color: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1a3a52;
+        }
+
+        .modal-message {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-buttons .btn {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        /* Lock Message */
+        .lock-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background-color: #fef2f2;
+            border-left: 4px solid #ef4444;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #991b1b;
+        }
+
+        .lock-message-icon {
+            font-size: 18px;
+        }
+
+        /* Disabled Table State */
+        table.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none;
+        }
+
+        /* Reports Specific */
+        .report-filters {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cie-topper-section {
+            background-color: #f0fdf4;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid #10b981;
+        }
+
+        .cie-topper-section .info-item {
+            border-bottom-color: #dcfce7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 180px;
+            }
+
+            .main-container {
+                margin-left: 180px;
+                padding: 20px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-filters {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .header {
+                padding: 0 20px;
+            }
+
+            .nav-item {
+                padding: 12px 15px;
+                font-size: 13px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-title">CPC Polytechnic Mysuru – Staff Panel</div>
+        <div class="header-info">Logged in as Staff – <span id="header-staff-name">Dr. Ramesh Kumar</span></div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-menu">
+            <div class="nav-item active" data-page="dashboard">Dashboard</div>
+            <div class="nav-item" data-page="attendance">Attendance Entry</div>
+            <div class="nav-item" data-page="cie">CIE Entry</div>
+            <div class="nav-item" data-page="cie-upload">CIE Paper Upload</div>
+            <div class="nav-item" data-page="reports">Reports</div>
+        </div>
+        <a class="nav-item logout-item" href="/logout">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard-page" class="page">
+            <h1 class="page-title">Dashboard</h1>
+
+            <div class="dashboard-grid">
+                <!-- Staff Information Card -->
+                <div class="card">
+                    <div class="card-title">Staff Information</div>
+                    <div class="info-item">
+                        <div class="info-label">Staff Name</div>
+                        <div class="info-value" id="staff-name">Dr. Ramesh Kumar</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Department</div>
+                        <div class="info-value" id="staff-department">Mechanical Engineering</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Role</div>
+                        <div class="info-value" id="staff-role">Lecturer</div>
+                    </div>
+                </div>
+
+                                <!-- Assigned Subjects Card -->
+                <div class="card">
+                    <div class="card-title">Assigned Subjects & Load</div>
+                    <div class="scrollable-container" id="assigned-subjects">
+                        <div class="subject-item">
+                            <div class="subject-name">Thermodynamics</div>
+                            <div class="subject-details">
+                                <span>Type: Theory</span>
+                                <span>Load: 4 periods/week</span>
+                            </div>
+                        </div>
+                        <div class="subject-item">
+                            <div class="subject-name">Machine Design</div>
+                            <div class="subject-details">
+                                <span>Type: Theory</span>
+                                <span>Load: 3 periods/week</span>
+                            </div>
+                        </div>
+                        <div class="subject-item">
+                            <div class="subject-name">Thermodynamics Lab</div>
+                            <div class="subject-details">
+                                <span>Type: Lab</span>
+                                <span>Load: 2 batches</span>
+                            </div>
+                        </div>
+                        <div class="subject-item">
+                            <div class="subject-name">Fluid Mechanics</div>
+                            <div class="subject-details">
+                                <span>Type: Theory</span>
+                                <span>Load: 3 periods/week</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="dashboard-grid">
+
+                                <!-- Attendance Status -->
+                <div class="card">
+                    <div class="card-title">Attendance Entry Status</div>
+                    <div style="padding-top: 10px;">
+                        <div class="status-badge status-enabled" id="attendance-status">
+                            <span class="lock-icon">✓</span>
+                            <span>Editing Enabled</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- CIE Status -->
+                <div class="card">
+                    <div class="card-title">CIE Entry Status</div>
+                    <div style="padding-top: 10px;">
+                        <div class="status-badge status-enabled" id="cie-status">
+                            <span class="lock-icon">✓</span>
+                            <span>Editing Enabled</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ATTENDANCE ENTRY PAGE -->
+        <div id="attendance-page" class="page hidden">
+            <h1 class="page-title">Attendance Entry</h1>
+
+            <div class="card">
+                <div id="attendance-lock-message" class="lock-message hidden">
+                    <span class="lock-message-icon">🔒</span>
+                    <span>Attendance entry disabled by HOD</span>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Active Month</div>
+                    <div class="info-value" id="attendance-active-month">--</div>
+                </div>
+
+
+                <div class="form-group">
+                    <label>Semester</label>
+                    <select id="attendance-semester">
+                        <option value="">Select Semester</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select id="attendance-subject">
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Total Classes Held (in Month)</label>
+                    <input type="text" id="total-classes" min="1" max="30" placeholder="e.g., 20">
+                </div>
+
+                <div class="table-container">
+                    <table id="attendance-table" class="">
+                        <thead>
+                            <tr>
+                                <th>Register Number</th>
+                                <th>Student Name</th>
+                                <th>Classes Attended</th>
+                                <th>Attendance %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-table-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" id="attendance-submit">Submit Attendance</button>
+                    <button class="btn btn-secondary" id="attendance-reset">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CIE ENTRY PAGE -->
+        <div id="cie-page" class="page hidden">
+            <h1 class="page-title">CIE Entry</h1>
+
+            <div class="card">
+                <div id="cie-lock-message" class="lock-message hidden">
+                    <span class="lock-message-icon">🔒</span>
+                    <span>CIE entry disabled by HOD</span>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Active CIE</div>
+                    <div class="info-value" id="cie-active-name">--</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Semester</label>
+                    <select id="cie-semester">
+                        <option value="">Select Semester</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select id="cie-subject">
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Maximum Marks</label>
+                    <input type="text" id="cie-maximum-marks" placeholder="Enter max marks">
+                </div>
+
+
+                <div class="table-container">
+                    <table id="cie-table" class="">
+                        <thead>
+                            <tr>
+                                <th>Register Number</th>
+                                <th>Student Name</th>
+                                <th>Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cie-table-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" id="cie-submit">Submit CIE Marks</button>
+                    <button class="btn btn-secondary" id="cie-reset">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CIE PAPER UPLOAD PAGE -->
+        <div id="cie-upload-page" class="page hidden">
+            <h1 class="page-title">CIE Paper Upload</h1>
+
+            <div class="card">
+                <p style="color:#666; margin-bottom:12px;">Upload a PDF of the CIE question paper to send to the HOD for approval.</p>
+
+                <div class="form-group">
+                    <label>Semester</label>
+                    <select id="upload-semester">
+                        <option value="">Select Semester</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select id="upload-subject">
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Choose PDF</label>
+                    <div class="file-input-group">
+                        <input type="file" id="upload-file" accept="application/pdf">
+                        <label for="upload-file" class="file-input-label">
+                            <div style="font-size:24px;">📄</div>
+                            <div class="file-input-meta">
+                                <div class="file-input-filename" id="uploadFileName">No file chosen</div>
+                                <div class="file-input-hint">PDF only. Click here or drop file to choose.</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" id="upload-send">Upload & Send to HOD</button>
+                    <button class="btn btn-secondary" id="upload-clear">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORTS PAGE -->
+        <div id="reports-page" class="page hidden">
+            <h1 class="page-title">Reports</h1>
+
+            <div class="card">
+                <div class="report-filters">
+                    <div class="form-group">
+                        <label>Semester</label>
+                        <select id="report-semester">
+                            <option value="">Select Semester</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <select id="report-subject">
+                            <option value="">Select Subject</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="report-actions">
+                    <button class="btn btn-primary" id="generate-report">Generate Report</button>
+                    <button class="btn btn-secondary" id="download-pdf">Download as PDF</button>
+                </div>
+            </div>
+
+            <!-- Report Output -->
+            <div class="card hidden" id="report-output">
+                <div class="card-title">Attendance & CIE Report</div>
+
+                <div class="table-container">
+                    <table id="report-table">
+                        <thead>
+                            <tr>
+                                <th>Register Number</th>
+                                <th>Student Name</th>
+                                <th>Attendance %</th>
+                                <th>CIE Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>108CS20001</td>
+                                <td>Arjun Singh</td>
+                                <td>95%</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <td>108CS20002</td>
+                                <td>Priya Sharma</td>
+                                <td>100%</td>
+                                <td>30</td>
+                            </tr>
+                            <tr>
+                                <td>108CS20003</td>
+                                <td>Vikram Patel</td>
+                                <td>82%</td>
+                                <td>22</td>
+                            </tr>
+                            <tr>
+                                <td>108CS20004</td>
+                                <td>Neha Desai</td>
+                                <td>90%</td>
+                                <td>25</td>
+                            </tr>
+                            <tr>
+                                <td>108CS20005</td>
+                                <td>Rohit Krishnan</td>
+                                <td>88%</td>
+                                <td>20</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="cie-topper-section">
+                    <div class="card-title">CIE Topper</div>
+                    <div class="info-item">
+                        <div class="info-label">Student Name</div>
+                        <div class="info-value">Priya Sharma</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Register Number</div>
+                        <div class="info-value">1ME20002</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Marks Obtained</div>
+                        <div class="info-value">30</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title" id="modal-title">Confirm Action</div>
+            <div class="modal-message" id="modal-message">Are you sure?</div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button class="btn btn-primary" id="modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title" style="color: #10b981;">✓ Success</div>
+            <div class="modal-message" id="success-message">Data submitted successfully.</div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="success-close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        const appState = {
+            currentPage: 'dashboard',
+            attendanceEnabled: true,
+            cieEnabled: true,
+            allocations: [],
+            attendanceControl: {},
+            cieControl: {},
+            selectedPeriod: null,
+            selectedBatch: null,
+            pendingAction: null
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initNavigation();
+            initAttendanceEntry();
+            initCIEEntry();
+            initCIEUpload();
+            initReports();
+            initModals();
+            updateStatusBadges();
+        });
+
+        // Navigation
+        function initNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    switchPage(page);
+                });
+            });
+        }
+
+        function switchPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+
+            // Show selected page
+            const pageElement = document.getElementById(pageName + '-page');
+            if (pageElement) {
+                pageElement.classList.remove('hidden');
+            }
+
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-page="${pageName}"]`).classList.add('active');
+
+            appState.currentPage = pageName;
+        }
+
+        // Update Status Badges
+        function updateStatusBadges() {
+            const attendanceStatus = document.getElementById('attendance-status');
+            const cieStatus = document.getElementById('cie-status');
+            const attendanceLock = document.getElementById('attendance-lock-message');
+            const cieLock = document.getElementById('cie-lock-message');
+
+            if (appState.attendanceEnabled) {
+                attendanceStatus.className = 'status-badge status-enabled';
+                attendanceStatus.innerHTML = '<span class="lock-icon">✓</span><span>Editing Enabled</span>';
+                attendanceLock.classList.add('hidden');
+            } else {
+                attendanceStatus.className = 'status-badge status-disabled';
+                attendanceStatus.innerHTML = '<span class="lock-icon">🔒</span><span>Editing Disabled</span>';
+                attendanceLock.classList.remove('hidden');
+            }
+
+            if (appState.cieEnabled) {
+                cieStatus.className = 'status-badge status-enabled';
+                cieStatus.innerHTML = '<span class="lock-icon">✓</span><span>Editing Enabled</span>';
+                cieLock.classList.add('hidden');
+            } else {
+                cieStatus.className = 'status-badge status-disabled';
+                cieStatus.innerHTML = '<span class="lock-icon">🔒</span><span>Editing Disabled</span>';
+                cieLock.classList.remove('hidden');
+            }
+
+            updateTableLockState();
+        }
+
+        function updateTableLockState() {
+            const attendanceTable = document.getElementById('attendance-table');
+            const cieTable = document.getElementById('cie-table');
+            const attendanceSubmit = document.getElementById('attendance-submit');
+            const cieSubmit = document.getElementById('cie-submit');
+
+            if (appState.attendanceEnabled) {
+                attendanceTable.classList.remove('disabled');
+                attendanceSubmit.disabled = false;
+            } else {
+                attendanceTable.classList.add('disabled');
+                attendanceSubmit.disabled = true;
+            }
+
+            if (appState.cieEnabled) {
+                cieTable.classList.remove('disabled');
+                cieSubmit.disabled = false;
+            } else {
+                cieTable.classList.add('disabled');
+                cieSubmit.disabled = true;
+            }
+        }
+
+        function monthNameFromNumber(month) {
+            const names = {
+                "01": "January",
+                "02": "February",
+                "03": "March",
+                "04": "April",
+                "05": "May",
+                "06": "June",
+                "07": "July",
+                "08": "August",
+                "09": "September",
+                "10": "October",
+                "11": "November",
+                "12": "December"
+            };
+            return names[month] || month || '--';
+        }
+
+        function getStaffSemesters() {
+            const semesters = appState.allocations
+                .map(a => a.semester)
+                .filter(s => s !== null && s !== undefined);
+            return Array.from(new Set(semesters.map(String)));
+        }
+
+        function allowedSemesters(controlSemesters) {
+            const staffSemesters = getStaffSemesters();
+            if (!controlSemesters || !controlSemesters.length) {
+                return staffSemesters;
+            }
+            return staffSemesters.filter(s => controlSemesters.map(String).includes(String(s)));
+        }
+
+        function setSelectOptions(select, options, placeholder) {
+            if (!select) return;
+            select.innerHTML = `<option value="">${placeholder}</option>`;
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.value;
+                el.textContent = opt.label;
+                select.appendChild(el);
+            });
+        }
+
+        function populateSemesterOptions() {
+            const attendanceSelect = document.getElementById('attendance-semester');
+            const cieSelect = document.getElementById('cie-semester');
+            const attendanceAllowed = allowedSemesters(appState.attendanceControl.semesters || []);
+            const cieAllowed = allowedSemesters(appState.cieControl.semesters || []);
+
+            const prevAttendance = attendanceSelect ? attendanceSelect.value : '';
+            const prevCie = cieSelect ? cieSelect.value : '';
+
+            setSelectOptions(
+                attendanceSelect,
+                attendanceAllowed.map(s => ({ value: s, label: `${s} Semester` })),
+                'Select Semester'
+            );
+            setSelectOptions(
+                cieSelect,
+                cieAllowed.map(s => ({ value: s, label: `${s} Semester` })),
+                'Select Semester'
+            );
+
+            if (attendanceSelect && prevAttendance) {
+                attendanceSelect.value = prevAttendance;
+            }
+            if (cieSelect && prevCie) {
+                cieSelect.value = prevCie;
+            }
+        }
+
+        function subjectLabel(allocation) {
+            const parts = [allocation.subject_name];
+            if (allocation.batch_name) parts.push(`Batch ${allocation.batch_name}`);
+            if (allocation.class_name) parts.push(allocation.class_name);
+            return parts.join(' • ');
+        }
+
+        function populateSubjectOptions(type) {
+            const semesterSelect = document.getElementById(type === 'attendance' ? 'attendance-semester' : 'cie-semester');
+            const subjectSelect = document.getElementById(type === 'attendance' ? 'attendance-subject' : 'cie-subject');
+            const tableBody = document.getElementById(type === 'attendance' ? 'attendance-table-body' : 'cie-table-body');
+
+            if (tableBody) tableBody.innerHTML = '';
+            if (!semesterSelect || !subjectSelect) return;
+
+            const semester = semesterSelect.value;
+            if (!semester) {
+                setSelectOptions(subjectSelect, [], 'Select Subject');
+                return;
+            }
+
+            const prevValue = subjectSelect.value;
+            const options = appState.allocations
+                .filter(a => String(a.semester) === String(semester))
+                .map(a => ({
+                    value: a.allocation_id,
+                    label: subjectLabel(a)
+                }));
+
+            setSelectOptions(subjectSelect, options, 'Select Subject');
+
+            if (prevValue && options.some(o => String(o.value) === String(prevValue))) {
+                subjectSelect.value = prevValue;
+            } else if (options.length === 1) {
+                subjectSelect.value = options[0].value;
+                loadStudentsForAllocation(type);
+            }
+        }
+
+        function populateUploadSemesterOptions() {
+            const semSelect = document.getElementById('upload-semester');
+            const subjSelect = document.getElementById('upload-subject');
+            if (!semSelect || !subjSelect) return;
+
+            const prevSem = semSelect.value;
+            const semesters = getStaffSemesters();
+            setSelectOptions(
+                semSelect,
+                semesters.map(s => ({ value: s, label: `${s} Semester` })),
+                'Select Semester'
+            );
+            if (prevSem && semesters.map(String).includes(String(prevSem))) {
+                semSelect.value = prevSem;
+            }
+            populateUploadSubjectOptions();
+        }
+
+        function populateUploadSubjectOptions() {
+            const semSelect = document.getElementById('upload-semester');
+            const subjSelect = document.getElementById('upload-subject');
+            if (!semSelect || !subjSelect) return;
+
+            const semester = semSelect.value;
+            if (!semester) {
+                setSelectOptions(subjSelect, [], 'Select Subject');
+                return;
+            }
+
+            const prevValue = subjSelect.value;
+            const options = appState.allocations
+                .filter(a => String(a.semester) === String(semester))
+                .map(a => ({
+                    value: a.allocation_id,
+                    label: subjectLabel(a)
+                }));
+
+            setSelectOptions(subjSelect, options, 'Select Subject');
+
+            if (prevValue && options.some(o => String(o.value) === String(prevValue))) {
+                subjSelect.value = prevValue;
+            } else if (options.length === 1) {
+                subjSelect.value = options[0].value;
+            }
+        }
+
+        function populateReportSemesterOptions() {
+            const semSelect = document.getElementById('report-semester');
+            const subjSelect = document.getElementById('report-subject');
+            if (!semSelect || !subjSelect) return;
+
+            const prevSem = semSelect.value;
+            const semesters = getStaffSemesters();
+            setSelectOptions(
+                semSelect,
+                semesters.map(s => ({ value: s, label: `${s} Semester` })),
+                'Select Semester'
+            );
+            if (prevSem && semesters.map(String).includes(String(prevSem))) {
+                semSelect.value = prevSem;
+            }
+            populateReportSubjectOptions();
+        }
+
+        function populateReportSubjectOptions() {
+            const semSelect = document.getElementById('report-semester');
+            const subjSelect = document.getElementById('report-subject');
+            if (!semSelect || !subjSelect) return;
+
+            const semester = semSelect.value;
+            if (!semester) {
+                setSelectOptions(subjSelect, [], 'Select Subject');
+                return;
+            }
+
+            const prevValue = subjSelect.value;
+            const options = appState.allocations
+                .filter(a => String(a.semester) === String(semester))
+                .map(a => ({
+                    value: a.allocation_id,
+                    label: subjectLabel(a)
+                }));
+
+            setSelectOptions(subjSelect, options, 'Select Subject');
+
+            if (prevValue && options.some(o => String(o.value) === String(prevValue))) {
+                subjSelect.value = prevValue;
+            } else if (options.length === 1) {
+                subjSelect.value = options[0].value;
+            }
+        }
+
+        async function loadStudentsForAllocation(type) {
+            const subjectSelect = document.getElementById(type === 'attendance' ? 'attendance-subject' : 'cie-subject');
+            const tableBody = document.getElementById(type === 'attendance' ? 'attendance-table-body' : 'cie-table-body');
+            if (!subjectSelect || !tableBody) return;
+
+            const allocationId = subjectSelect.value;
+            if (!allocationId) {
+                tableBody.innerHTML = '';
+                return;
+            }
+
+            const colSpan = type === 'attendance' ? 4 : 3;
+            tableBody.innerHTML = `<tr><td colspan="${colSpan}">Loading...</td></tr>`;
+            try {
+                const params = new URLSearchParams({ allocation_id: allocationId });
+                if (type === 'cie') {
+                    const cieType = appState.cieControl.cie_type || '';
+                    if (!cieType) {
+                        tableBody.innerHTML = `<tr><td colspan="${colSpan}">CIE is not enabled.</td></tr>`;
+                        return;
+                    }
+                }
+                const res = await fetch(`/staff/allocation-students?${params.toString()}`);
+                const data = await res.json();
+                if (data.error) {
+                    tableBody.innerHTML = `<tr><td colspan="${colSpan}">${data.error}</td></tr>`;
+                    return;
+                }
+                const students = data.students || [];
+
+                if (!students.length) {
+                    const msg = type === 'cie'
+                        ? 'No students found for this CIE.'
+                        : 'No students found.';
+                    tableBody.innerHTML = `<tr><td colspan="${colSpan}">${msg}</td></tr>`;
+                    return;
+                }
+
+                if (type === 'attendance') {
+                    tableBody.innerHTML = students.map(s => `
+                        <tr data-student-id="${s.student_id}">
+                            <td>${s.register_no}</td>
+                            <td>${s.name}</td>
+                            <td><input type="number" class="attendance-count" min="0" max="30" value=""></td>
+                            <td><span class="attendance-percentage">0%</span></td>
+                        </tr>
+                    `).join('');
+                    updateAllAttendancePercentages();
+                } else {
+                    const maxMarks = parseInt(document.getElementById('cie-maximum-marks').value || '0', 10) || 0;
+                    const maxAttr = maxMarks || 100;
+                    tableBody.innerHTML = students.map(s => `
+                        <tr data-student-id="${s.student_id}">
+                            <td>${s.register_no}</td>
+                            <td>${s.name}</td>
+                            <td><input type="number" class="marks-input" min="0" max="${maxAttr}" value=""></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                tableBody.innerHTML = `<tr><td colspan="${colSpan}">Failed to load students.</td></tr>`;
+            }
+        }
+
+        // Attendance Entry
+        function initAttendanceEntry() {
+            const totalClassesInput = document.getElementById('total-classes');
+            const tableBody = document.getElementById('attendance-table-body');
+            const submitBtn = document.getElementById('attendance-submit');
+            const resetBtn = document.getElementById('attendance-reset');
+            const semesterSelect = document.getElementById('attendance-semester');
+            const subjectSelect = document.getElementById('attendance-subject');
+
+            if (totalClassesInput) {
+                totalClassesInput.addEventListener('input', function() {
+                    updateAllAttendancePercentages();
+                });
+            }
+
+            if (tableBody) {
+                tableBody.addEventListener('input', function(e) {
+                    if (!appState.attendanceEnabled) return;
+                    if (e.target.classList.contains('attendance-count')) {
+                        updateAttendancePercentage(e.target);
+                    }
+                });
+            }
+
+            if (semesterSelect) {
+                semesterSelect.addEventListener('change', function() {
+                    populateSubjectOptions('attendance');
+                });
+            }
+
+            if (subjectSelect) {
+                subjectSelect.addEventListener('change', function() {
+                    loadStudentsForAllocation('attendance');
+                });
+            }
+
+            if (submitBtn) {
+                submitBtn.addEventListener('click', async function() {
+                    if (!appState.attendanceEnabled) return;
+
+                    const semester = semesterSelect.value;
+                    const allocationId = subjectSelect.value;
+                    const totalClasses = totalClassesInput.value;
+                    const month = appState.attendanceControl.month;
+
+                    if (!allocationId) {
+                        showErrorModal('Missing Information', 'Please select subject.');
+                        return;
+                    }
+                    if (!totalClasses) {
+                        showErrorModal('Missing Information', 'Please enter total classes.');
+                        return;
+                    }
+                    if (!month) {
+                        showErrorModal('Missing Information', 'Attendance month is not set by HOD.');
+                        return;
+                    }
+
+                    const rows = Array.from(document.querySelectorAll('#attendance-table-body tr'));
+                    if (!rows.length) {
+                        showErrorModal('Missing Information', 'No students loaded for this subject.');
+                        return;
+                    }
+                    const entries = rows.map(row => ({
+                        student_id: row.dataset.studentId,
+                        classes_attended: row.querySelector('.attendance-count').value
+                    }));
+
+                    try {
+                        const res = await fetch('/staff/submit-attendance', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                allocation_id: allocationId,
+                                total_classes: totalClasses,
+                                entries
+                            })
+                        });
+                        if (!res.ok) {
+                            const err = await res.json();
+                            showErrorModal('Error', err.error || 'Failed to submit attendance.');
+                            return;
+                        }
+                        showSuccessModal('Success', 'Attendance submitted successfully.');
+                    } catch (e) {
+                        showErrorModal('Error', 'Failed to submit attendance.');
+                    }
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    if (semesterSelect) semesterSelect.value = '';
+                    if (subjectSelect) subjectSelect.value = '';
+                    if (totalClassesInput) totalClassesInput.value = '';
+                    if (tableBody) tableBody.innerHTML = '';
+                });
+            }
+        }
+
+        function updateAttendancePercentage(input) {
+            const totalClasses = parseInt(document.getElementById('total-classes').value) || 0;
+            const attended = parseInt(input.value) || 0;
+
+            if (totalClasses === 0) {
+                input.parentElement.nextElementSibling.querySelector('.attendance-percentage').textContent = '0%';
+                return;
+            }
+
+            if (attended > totalClasses) {
+                input.value = totalClasses;
+            }
+
+            const percentage = Math.round((attended / totalClasses) * 100);
+            input.parentElement.nextElementSibling.querySelector('.attendance-percentage').textContent = percentage + '%';
+        }
+
+        function updateAllAttendancePercentages() {
+            const attendanceCountInputs = document.querySelectorAll('.attendance-count');
+            attendanceCountInputs.forEach(input => {
+                input.max = document.getElementById('total-classes').value || 30;
+                updateAttendancePercentage(input);
+            });
+        }
+
+        // CIE Entry
+        function initCIEEntry() {
+            const submitBtn = document.getElementById('cie-submit');
+            const resetBtn = document.getElementById('cie-reset');
+            const tableBody = document.getElementById('cie-table-body');
+            const semesterSelect = document.getElementById('cie-semester');
+            const subjectSelect = document.getElementById('cie-subject');
+            const maxMarksInput = document.getElementById('cie-maximum-marks');
+
+            if (tableBody) {
+                tableBody.addEventListener('input', function(e) {
+                    if (!appState.cieEnabled) return;
+                    if (e.target.classList.contains('marks-input')) {
+                        const maxMarks = parseInt(maxMarksInput.value || '0', 10) || 0;
+                        const value = parseInt(e.target.value || '0', 10);
+                        if (maxMarks && value > maxMarks) {
+                            e.target.classList.add('error');
+                            e.target.value = maxMarks;
+                        } else {
+                            e.target.classList.remove('error');
+                        }
+                    }
+                });
+            }
+
+            if (maxMarksInput) {
+                maxMarksInput.addEventListener('input', function() {
+                    const maxMarks = parseInt(maxMarksInput.value || '0', 10) || 0;
+                    document.querySelectorAll('.marks-input').forEach(input => {
+                        if (maxMarks) {
+                            input.max = maxMarks;
+                        }
+                        const value = parseInt(input.value || '0', 10);
+                        if (maxMarks && value > maxMarks) {
+                            input.classList.add('error');
+                        } else {
+                            input.classList.remove('error');
+                        }
+                    });
+                });
+            }
+
+            if (semesterSelect) {
+                semesterSelect.addEventListener('change', function() {
+                    populateSubjectOptions('cie');
+                });
+            }
+
+            if (subjectSelect) {
+                subjectSelect.addEventListener('change', function() {
+                    loadStudentsForAllocation('cie');
+                });
+            }
+
+            if (submitBtn) {
+                submitBtn.addEventListener('click', async function() {
+                    if (!appState.cieEnabled) return;
+
+                    const allocationId = subjectSelect.value;
+                    const cieType = appState.cieControl.cie_type;
+                    const maxMarks = parseInt(maxMarksInput.value || '0', 10) || 0;
+
+                    if (!allocationId) {
+                        showErrorModal('Missing Information', 'Please select subject.');
+                        return;
+                    }
+                    if (!cieType) {
+                        showErrorModal('Missing Information', 'CIE is not enabled by HOD.');
+                        return;
+                    }
+                    if (!maxMarks) {
+                        showErrorModal('Missing Information', 'Please enter maximum marks.');
+                        return;
+                    }
+
+                    const rows = Array.from(document.querySelectorAll('#cie-table-body tr'));
+                    if (!rows.length) {
+                        showErrorModal('Missing Information', 'No students loaded for this subject.');
+                        return;
+                    }
+                    const entries = rows.map(row => ({
+                        student_id: row.dataset.studentId,
+                        marks_obtained: row.querySelector('.marks-input').value
+                    }));
+
+                    const hasInvalid = entries.some(e => maxMarks && parseInt(e.marks_obtained || '0', 10) > maxMarks);
+                    if (hasInvalid) {
+                        showErrorModal('Validation Error', 'One or more marks exceed maximum limit.');
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch('/staff/submit-cie', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                allocation_id: allocationId,
+                                cie_type: cieType,
+                                max_marks: maxMarks,
+                                entries
+                            })
+                        });
+                        if (!res.ok) {
+                            const err = await res.json();
+                            showErrorModal('Error', err.error || 'Failed to submit CIE marks.');
+                            return;
+                        }
+                        showSuccessModal('Success', 'CIE marks submitted successfully.');
+                    } catch (e) {
+                        showErrorModal('Error', 'Failed to submit CIE marks.');
+                    }
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    if (semesterSelect) semesterSelect.value = '';
+                    if (subjectSelect) subjectSelect.value = '';
+                    if (tableBody) tableBody.innerHTML = '';
+                });
+            }
+        }
+
+        // CIE Paper Upload
+        function initCIEUpload() {
+            const sendBtn = document.getElementById('upload-send');
+            const clearBtn = document.getElementById('upload-clear');
+            const fileInput = document.getElementById('upload-file');
+            const fileNameEl = document.getElementById('uploadFileName');
+            const semSelect = document.getElementById('upload-semester');
+            const subjSelect = document.getElementById('upload-subject');
+
+            function updateSendState() {
+                const file = fileInput.files && fileInput.files[0];
+                const ok = semSelect.value && subjSelect.value && file;
+                if (sendBtn) sendBtn.disabled = !ok;
+                if (sendBtn) sendBtn.classList.toggle('btn-primary', ok);
+            }
+
+            // show filename preview and validate
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    const f = this.files && this.files[0];
+                    if (!f) {
+                        if (fileNameEl) fileNameEl.textContent = 'No file chosen';
+                        updateSendState();
+                        return;
+                    }
+                    if (f.type !== 'application/pdf') {
+                        showErrorModal('Invalid File', 'Please select a PDF file.');
+                        this.value = '';
+                        if (fileNameEl) fileNameEl.textContent = 'No file chosen';
+                        updateSendState();
+                        return;
+                    }
+                    if (fileNameEl) fileNameEl.textContent = `${f.name} · ${Math.round(f.size/1024)} KB`;
+                    updateSendState();
+                });
+                // support drag and drop onto label
+                const label = document.querySelector('label.file-input-label[for="upload-file"]');
+                if (label) {
+                    label.addEventListener('dragover', e => { e.preventDefault(); label.classList.add('dragover'); });
+                    label.addEventListener('dragleave', e => { e.preventDefault(); label.classList.remove('dragover'); });
+                    label.addEventListener('drop', e => {
+                        e.preventDefault(); label.classList.remove('dragover');
+                        const dt = e.dataTransfer;
+                        if (dt && dt.files && dt.files[0]) {
+                            fileInput.files = dt.files;
+                            const ev = new Event('change');
+                            fileInput.dispatchEvent(ev);
+                        }
+                    });
+                }
+            }
+
+            // enable/disable send when selects change
+            if (semSelect) {
+                semSelect.addEventListener('change', function() {
+                    populateUploadSubjectOptions();
+                    updateSendState();
+                });
+            }
+            if (subjSelect) subjSelect.addEventListener('change', updateSendState);
+
+            if (sendBtn) {
+                sendBtn.addEventListener('click', async function() {
+                    const semester = document.getElementById('upload-semester').value;
+                    const allocationId = document.getElementById('upload-subject').value;
+                    const fileInput = document.getElementById('upload-file');
+                    const file = fileInput.files && fileInput.files[0];
+
+                    if (!semester || !allocationId || !file) {
+                        showErrorModal('Missing Information', 'Please select semester, subject and choose a PDF file.');
+                        return;
+                    }
+
+                    if (file.type !== 'application/pdf') {
+                        showErrorModal('Invalid File', 'Only PDF files are allowed.');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('allocation_id', allocationId);
+                    formData.append('file', file);
+
+                    sendBtn.disabled = true;
+                    sendBtn.textContent = 'Uploading...';
+                    try {
+                        const res = await fetch('/staff/upload-cie-paper', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await res.json();
+                        if (!res.ok) {
+                            showErrorModal('Error', data.error || 'Upload failed.');
+                            sendBtn.disabled = false;
+                            sendBtn.textContent = 'Upload & Send to HOD';
+                            return;
+                        }
+                        showSuccessModal('Uploaded', 'CIE paper uploaded and sent to HOD.');
+                        document.getElementById('upload-semester').value = '';
+                        document.getElementById('upload-subject').value = '';
+                        fileInput.value = '';
+                        if (fileNameEl) fileNameEl.textContent = 'No file chosen';
+                        updateSendState();
+                        sendBtn.textContent = 'Upload & Send to HOD';
+                    } catch (e) {
+                        showErrorModal('Error', 'Upload failed.');
+                        sendBtn.disabled = false;
+                        sendBtn.textContent = 'Upload & Send to HOD';
+                    }
+                });
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    document.getElementById('upload-semester').value = '';
+                    document.getElementById('upload-subject').value = '';
+                    document.getElementById('upload-file').value = '';
+                    if (fileNameEl) fileNameEl.textContent = 'No file chosen';
+                });
+            }
+        }
+
+        // Reports
+        function initReports() {
+            const generateBtn = document.getElementById('generate-report');
+            const downloadBtn = document.getElementById('download-pdf');
+            const semesterSelect = document.getElementById('report-semester');
+            const subjectSelect = document.getElementById('report-subject');
+
+            if (semesterSelect) {
+                semesterSelect.addEventListener('change', function() {
+                    populateReportSubjectOptions();
+                });
+            }
+
+            if (generateBtn) {
+                generateBtn.addEventListener('click', async function() {
+                    const allocationId = subjectSelect ? subjectSelect.value : '';
+                    if (!allocationId) {
+                        showErrorModal('Missing Information', 'Please select both semester and subject.');
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(`/staff/report-data?allocation_id=${allocationId}`);
+                        const data = await res.json();
+                        if (!res.ok) {
+                            showErrorModal('Error', data.error || 'Failed to load report data.');
+                            return;
+                        }
+
+                        const tbody = document.querySelector('#report-table tbody');
+                        if (!tbody) return;
+
+                        if (!data.students || !data.students.length) {
+                            tbody.innerHTML = '<tr><td colspan="4">No data found.</td></tr>';
+                        } else {
+                            tbody.innerHTML = data.students.map(s => `
+                                <tr>
+                                    <td>${s.register_no}</td>
+                                    <td>${s.name}</td>
+                                    <td>${s.attendance_percent}%</td>
+                                    <td>${s.cie_total}</td>
+                                </tr>
+                            `).join('');
+                        }
+
+                        document.getElementById('report-output').classList.remove('hidden');
+                    } catch (e) {
+                        showErrorModal('Error', 'Failed to load report data.');
+                    }
+                });
+            }
+
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    const allocationId = subjectSelect ? subjectSelect.value : '';
+                    if (!allocationId) {
+                        showErrorModal('Missing Information', 'Please select both semester and subject.');
+                        return;
+                    }
+                    window.location = `/staff/report-pdf?allocation_id=${allocationId}`;
+                });
+            }
+        }
+
+        // Modals
+        function initModals() {
+            const confirmModal = document.getElementById('confirmation-modal');
+            const successModal = document.getElementById('success-modal');
+            const cancelBtn = document.getElementById('modal-cancel');
+            const confirmBtn = document.getElementById('modal-confirm');
+            const successCloseBtn = document.getElementById('success-close');
+
+            cancelBtn.addEventListener('click', closeConfirmationModal);
+            confirmBtn.addEventListener('click', handleConfirm);
+            successCloseBtn.addEventListener('click', closeSuccessModal);
+
+            // Close modal on outside click
+            confirmModal.addEventListener('click', function(e) {
+                if (e.target === confirmModal) closeConfirmationModal();
+            });
+            successModal.addEventListener('click', function(e) {
+                if (e.target === successModal) closeSuccessModal();
+            });
+        }
+
+        function showConfirmationModal(title, message, confirmText) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-confirm').textContent = confirmText;
+            document.getElementById('modal-cancel').style.display = 'inline-flex';
+            document.getElementById('confirmation-modal').classList.add('show');
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById('confirmation-modal').classList.remove('show');
+        }
+
+        function handleConfirm() {
+            if (appState.pendingAction === 'attendance') {
+                closeConfirmationModal();
+                showSuccessModal('Success', 'Attendance submitted successfully.');
+            } else if (appState.pendingAction === 'cie') {
+                closeConfirmationModal();
+                showSuccessModal('Success', 'CIE marks submitted successfully.');
+            } else if (appState.pendingAction === 'error') {
+                closeConfirmationModal();
+            }
+            appState.pendingAction = null;
+        }
+
+        function showSuccessModal(title, message) {
+            document.getElementById('success-message').textContent = message;
+            document.getElementById('success-modal').classList.add('show');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.remove('show');
+        }
+
+        function showErrorModal(title, message) {
+            showConfirmationModal(title, message, 'OK');
+            document.getElementById('modal-cancel').style.display = 'none';
+            appState.pendingAction = 'error';
+        }
+
+        // Toggle Attendance/CIE Lock (for demo purposes)
+        // Uncomment to allow toggling lock state via console:
+        // window.toggleAttendanceLock = function() {
+        //     appState.attendanceEnabled = !appState.attendanceEnabled;
+        //     updateStatusBadges();
+        // };
+        // window.toggleCIELock = function() {
+        //     appState.cieEnabled = !appState.cieEnabled;
+        //     updateStatusBadges();
+        // };
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/dashboard-data', { credentials: 'same-origin' });
+                if (!response.ok) throw new Error('Failed to load dashboard data');
+                const data = await response.json();
+
+                const headerName = document.getElementById('header-staff-name');
+                const staffName = document.getElementById('staff-name');
+                const staffDept = document.getElementById('staff-department');
+
+                if (headerName && data.staff_name) headerName.textContent = data.staff_name;
+                if (staffName && data.staff_name) staffName.textContent = data.staff_name;
+                if (staffDept) staffDept.textContent = data.department_name || '--';
+                // Role stays static in the UI.
+
+                appState.allocations = Array.isArray(data.allocations) ? data.allocations : [];
+                appState.attendanceControl = data.attendance_control || {};
+                appState.cieControl = data.cie_control || {};
+
+                if (typeof data.attendance_enabled === 'boolean') {
+                    appState.attendanceEnabled = data.attendance_enabled;
+                }
+                if (typeof data.cie_enabled === 'boolean') {
+                    appState.cieEnabled = data.cie_enabled;
+                }
+
+                const attendanceMonthEl = document.getElementById('attendance-active-month');
+                if (attendanceMonthEl) {
+                    attendanceMonthEl.textContent = appState.attendanceEnabled
+                        ? monthNameFromNumber(appState.attendanceControl.month)
+                        : '--';
+                }
+
+                const cieNameEl = document.getElementById('cie-active-name');
+                if (cieNameEl) {
+                    cieNameEl.textContent = appState.cieEnabled
+                        ? (appState.cieControl.cie_type || '--')
+                        : '--';
+                }
+
+                const cieMaxMarksEl = document.getElementById('cie-maximum-marks');
+                if (cieMaxMarksEl) {
+                    if (appState.cieControl.max_marks) {
+                        cieMaxMarksEl.value = appState.cieControl.max_marks;
+                    } else {
+                        cieMaxMarksEl.value = '';
+                    }
+                    cieMaxMarksEl.readOnly = false;
+                    cieMaxMarksEl.placeholder = 'Enter max marks';
+                }
+
+                populateSemesterOptions();
+                populateSubjectOptions('attendance');
+                populateSubjectOptions('cie');
+                populateUploadSemesterOptions();
+                populateReportSemesterOptions();
+                updateStatusBadges();
+
+                const container = document.getElementById('assigned-subjects');
+                if (container) {
+                    container.innerHTML = '';
+                    if (Array.isArray(data.allocations) && data.allocations.length) {
+                        data.allocations.forEach(item => {
+                            const wrap = document.createElement('div');
+                            wrap.className = 'subject-item';
+
+                            const name = document.createElement('div');
+                            name.className = 'subject-name';
+                            name.textContent = item.subject_name || '--';
+
+                            const details = document.createElement('div');
+                            details.className = 'subject-details';
+
+                            const classSpan = document.createElement('span');
+                            classSpan.textContent = `Class: ${item.class_name || '--'}`;
+
+                            const yearSpan = document.createElement('span');
+                            yearSpan.textContent = `Academic Year: ${item.academic_year || '--'}`;
+
+                            details.appendChild(classSpan);
+                            details.appendChild(yearSpan);
+
+                            if (item.batch_name) {
+                                const batchSpan = document.createElement('span');
+                                batchSpan.textContent = `Batch: ${item.batch_name}`;
+                                details.appendChild(batchSpan);
+                            }
+
+                            wrap.appendChild(name);
+                            wrap.appendChild(details);
+                            container.appendChild(wrap);
+                        });
+                    } else {
+                        const empty = document.createElement('div');
+                        empty.className = 'info-item';
+                        empty.textContent = 'No allocations found.';
+                        container.appendChild(empty);
+                    }
+                }
+            } catch (err) {
+                const container = document.getElementById('assigned-subjects');
+                if (container) {
+                    container.innerHTML = '<div class="info-item">Unable to load allocations.</div>';
+                }
+            }
+        }
+
+        loadDashboardData();
+    </script>
+</body>
+</html>

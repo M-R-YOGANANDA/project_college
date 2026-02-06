@@ -20,6 +20,8 @@ class CIEPapers(db.Model):
     semester = db.Column(db.Integer, nullable=False)
     file_path = db.Column(db.String(255), nullable=False)
     uploaded_at = db.Column(db.DateTime, server_default=db.func.now())
+    subject_code = db.Column(db.String(50), nullable=False)
+    is_displayed = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return f"<CIEPaper {self.paper_id}>"

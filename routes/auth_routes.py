@@ -59,7 +59,7 @@ def login():
         elif user.role_id == 2:
             return redirect(url_for("hod.dashboard"))
         elif user.role_id == 3:
-            return redirect(url_for("staff.dashboard"))
+            return redirect(url_for("staff.staff_dashboard"))
         else:
             return render_template("login.html", error="Unauthorized role")
 

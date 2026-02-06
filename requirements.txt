@@ -4,3 +4,6 @@ Flask-Migrate
 python-dotenv
 PyMySQL
 flask-login
+reportlab
+pandas
+openpyxl
